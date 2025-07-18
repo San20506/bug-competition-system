@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, redirect, session, send_from_directory
 import os, zipfile, shutil, json, sqlite3, csv, io, qrcode
 from datetime import datetime
@@ -21,7 +20,7 @@ def generate_qr_code(url, site_id):
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
     qr.add_data(url)
     qr.make(fit=True)
-    
+
     img = qr.make_image(fill_color="black", back_color="white")
     img.save(f'static/qr/site_{site_id}.png')
 
@@ -98,25 +97,72 @@ def logout():
 def bug_site():
     if 'team' not in session:
         return redirect('/login')
-    
+
     team_name = session['team']
     site_id = get_team_site(team_name)
     sites = get_sites()
-    
-    if str(site_id) not in sites:
-        return "Site not found", 404
-    
-    site_info = sites[str(site_id)]
+
+    site_info = sites.get(str(site_id), {})
+    site_name = site_info.get('name', f'Site {site_id}')
+    site_url = site_info.get('url', '#')
+
     qr_path = f'static/qr/site_{site_id}.png'
-    
-    # Generate QR code if it doesn't exist
-    if not os.path.exists(qr_path):
-        generate_qr_code(site_info['url'], site_id)
-    
+
     return render_template('bug_site.html', 
-                         bug_url=site_info['url'], 
-                         site_name=site_info['name'],
+                         site_name=site_name, 
+                         site_url=site_url,
+                         qr_path=qr_path,
                          site_id=site_id)
+
+
+# ---- SITE FILES SERVING ----
+@app.route('/download_site/<int:site_id>')
+def download_site(site_id):
+    """Download site files as ZIP for editing"""
+    if 'team' not in session:
+        return redirect('/login')
+
+    team_name = session['team']
+    team_site_id = get_team_site(team_name)
+
+    # Teams can only download their assigned site
+    if site_id != team_site_id:
+        return "Access denied: You can only download your assigned site", 403
+
+    site_path = f'templates/bugged_sites/site_{site_id}'
+    if not os.path.exists(site_path):
+        return "Site not found", 404
+
+    # Create ZIP file
+    zip_filename = f'site_{site_id}_files.zip'
+    zip_path = os.path.join('uploads', zip_filename)
+
+    with zipfile.ZipFile(zip_path, 'w') as zipf:
+        for root, dirs, files in os.walk(site_path):
+            for file in files:
+                if not file.endswith('.py'):  # Exclude detection scripts
+                    file_path = os.path.join(root, file)
+                    arc_name = os.path.relpath(file_path, site_path)
+                    zipf.write(file_path, arc_name)
+
+    return send_from_directory('uploads', zip_filename, as_attachment=True)
+
+
+@app.route('/view_site/<int:site_id>/<path:filename>')
+def view_site_file(site_id, filename):
+    """View individual site files"""
+    if 'team' not in session:
+        return redirect('/login')
+
+    team_name = session['team']
+    team_site_id = get_team_site(team_name)
+
+    # Teams can only view their assigned site
+    if site_id != team_site_id:
+        return "Access denied", 403
+
+    site_path = f'templates/bugged_sites/site_{site_id}'
+    return send_from_directory(site_path, filename)
 
 
 # ---- TEAM SUBMISSION PAGE ----
@@ -187,15 +233,15 @@ def leaderboard():
     c.execute("SELECT s.name, s.score, s.duration, s.site_id FROM scores s ORDER BY s.score DESC, s.duration ASC")
     rows = c.fetchall()
     conn.close()
-    
+
     sites = get_sites()
-    
+
     # Format time for display and add site names
     formatted_rows = []
     for row in rows:
         site_name = sites.get(str(row[3]), {}).get('name', f'Site {row[3]}')
         formatted_rows.append((row[0], row[1], format_time(row[2]), site_name))
-    
+
     return render_template("leaderboard.html", rows=formatted_rows)
 
 
@@ -204,36 +250,36 @@ def leaderboard():
 def admin_sites():
     if 'admin' not in session:
         return redirect('/login')
-    
+
     msg = ""
     sites = get_sites()
-    
+
     if request.method == 'POST':
         action = request.form.get('action')
-        
+
         if action == 'update_site':
             site_id = request.form.get('site_id')
             site_name = request.form.get('site_name', '').strip()
             site_url = request.form.get('site_url', '').strip()
-            
+
             if site_id and site_name and site_url:
                 sites[site_id] = {
                     'name': site_name,
                     'url': site_url
                 }
-                
+
                 with open('admin/sites.json', 'w') as f:
                     json.dump(sites, f, indent=2)
-                
+
                 # Regenerate QR code
                 generate_qr_code(site_url, site_id)
                 msg = f"✅ Site {site_id} updated and QR code regenerated!"
-        
+
         elif action == 'regenerate_all':
             for site_id, site_info in sites.items():
                 generate_qr_code(site_info['url'], site_id)
             msg = "🔄 All QR codes regenerated!"
-    
+
     return render_template('admin_sites.html', msg=msg, sites=sites)
 
 
@@ -358,7 +404,7 @@ def admin_dashboard():
     c.execute("SELECT name, password, site_id FROM teams ORDER BY name")
     teams = c.fetchall()
     conn.close()
-    
+
     sites = get_sites()
 
     return render_template("dashboard.html", msg=msg, timer=timer, scores=scores, teams=teams, sites=sites)

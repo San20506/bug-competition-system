@@ -1,4 +1,4 @@
-
+The code adds download and file viewing options to the bug site, including styling for the new elements.
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,30 +11,63 @@
         .url-link a { color: #007bff; text-decoration: none; }
         .url-link a:hover { text-decoration: underline; }
         .site-info { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .qr-help { color: #666; font-size: 14px; margin-top: 10px; }
+        .nav-links { margin: 20px 0; }
+        .nav-links a { margin-right: 15px; text-decoration: none; color: #007bff; }
+        .nav-links a:hover { text-decoration: underline; }
+        .file-actions { margin: 15px 0; }
+        .download-btn { 
+            display: inline-block; 
+            background: #28a745; 
+            color: white; 
+            padding: 12px 20px; 
+            text-decoration: none; 
+            border-radius: 5px; 
+            margin-bottom: 15px;
+        }
+        .download-btn:hover { background: #218838; }
+        .file-list { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin: 10px 0;
+        }
+        .file-list ul { list-style-type: none; padding: 0; }
+        .file-list li { margin: 5px 0; }
+        .file-list a { color: #007bff; text-decoration: none; }
+        .file-list a:hover { text-decoration: underline; }
+        .instructions { 
+            background: #e7f3ff; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin-top: 15px;
+        }
+        .instructions ol { margin: 10px 0; }
+        .instructions li { margin: 5px 0; }
     </style>
 </head>
 <body>
     <h2>🐛 Your Assigned Bug Site</h2>
-    
+
     <div class="site-info">
         <h3>{{ site_name }}</h3>
         <p><strong>Site ID:</strong> {{ site_id }}</p>
         <p>🎯 This is your team's assigned site. Only submit fixes for this site!</p>
     </div>
-    
+
     <div class="qr-container">
         <div class="qr-code">
             <img src="/static/qr/site_{{ site_id }}.png" alt="Bug Site QR Code" style="max-width: 100%;">
         </div>
-        
+
         <div class="url-link">
             <p><strong>Direct Link:</strong></p>
             <a href="{{ bug_url }}" target="_blank">{{ bug_url }}</a>
         </div>
     </div>
-    
+
     <p>📱 Scan the QR code or click the link to access your buggy website</p>
-    
+
     <br>
     <a href="/">⬅ Back to Home</a>
 </body>
