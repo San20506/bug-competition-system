@@ -1,4 +1,4 @@
-
+html
 <!DOCTYPE html>
 <html>
 <head>
@@ -55,7 +55,7 @@
 <!-- TEAM MANAGEMENT -->
 <div class="section">
     <h3>👥 Manage Teams</h3>
-    
+
     <!-- Add Team -->
     <form method="POST">
         <h4>➕ Add Single Team</h4>
@@ -93,8 +93,9 @@
     <form method="POST" enctype="multipart/form-data">
         <h4>📥 Bulk Import Teams (CSV)</h4>
         <input type="file" name="file" accept=".csv" required>
+        <small>Format: name,password,site_id (site_id optional, defaults to 1)</small>
         <button name="action" value="bulk_teams">Upload CSV</button>
-        <small>Format: name,password (one per line)</small>
+
     </form>
 
     <!-- Teams List -->
@@ -111,7 +112,7 @@
         </table>
     </div>
 </div>
-    
+
 <!-- Reset DB -->
 <div class="section">
     <h3>🧨 Reset Database (New Round)</h3>

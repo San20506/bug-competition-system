@@ -15,7 +15,8 @@ c = conn.cursor()
 c.execute("""
 CREATE TABLE teams (
     name TEXT PRIMARY KEY,
-    password TEXT
+    password TEXT,
+    site_id INTEGER DEFAULT 1
 )
 """)
 
@@ -24,20 +25,21 @@ CREATE TABLE scores (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE,
     score INTEGER,
-    duration INTEGER
+    duration INTEGER,
+    site_id INTEGER
 )
 """)
 
 # Insert example teams for testing (as mentioned in requirements)
-c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("TeamAlpha", "alpha123"))
-c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("BugSquashers", "squash404"))
-c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("ErrorHunters", "error007"))
-c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("NullPointers", "nullnull"))
+c.execute("INSERT INTO teams (name, password, site_id) VALUES (?, ?, ?)", ("TeamAlpha", "alpha123", 1))
+c.execute("INSERT INTO teams (name, password, site_id) VALUES (?, ?, ?)", ("BugSquashers", "squash404", 2))
+c.execute("INSERT INTO teams (name, password, site_id) VALUES (?, ?, ?)", ("ErrorHunters", "error007", 3))
+c.execute("INSERT INTO teams (name, password, site_id) VALUES (?, ?, ?)", ("NullPointers", "nullnull", 4))
 
 # Keep original test teams too
-c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("alpha", "bug123"))
-c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("beta", "fix456"))
-c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("gamma", "patch789"))
+c.execute("INSERT INTO teams (name, password, site_id) VALUES (?, ?, ?)", ("alpha", "bug123", 5))
+c.execute("INSERT INTO teams (name, password, site_id) VALUES (?, ?, ?)", ("beta", "fix456", 1))
+c.execute("INSERT INTO teams (name, password, site_id) VALUES (?, ?, ?)", ("gamma", "patch789", 2))
 
 conn.commit()
 conn.close()

@@ -1,0 +1,23 @@
+
+{
+  "1": {
+    "name": "E-commerce Site",
+    "url": "https://example.com/ecommerce-bugs"
+  },
+  "2": {
+    "name": "Social Media Platform", 
+    "url": "https://example.com/social-bugs"
+  },
+  "3": {
+    "name": "Banking Portal",
+    "url": "https://example.com/banking-bugs"
+  },
+  "4": {
+    "name": "News Website",
+    "url": "https://example.com/news-bugs"
+  },
+  "5": {
+    "name": "Online Learning",
+    "url": "https://example.com/learning-bugs"
+  }
+}
