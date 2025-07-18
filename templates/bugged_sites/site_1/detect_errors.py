@@ -2,7 +2,7 @@
 #!/usr/bin/env python3
 """
 Bug Detection Script for E-commerce Site (Site 1)
-Detects 30 intentionally injected bugs in the HTML/CSS/JS files.
+Detects 30 intentionally injected beginner-friendly frontend bugs.
 """
 
 import re
@@ -19,38 +19,38 @@ def detect_bugs_site1():
         print("index.html not found")
         return []
     
-    # Bug detection patterns
+    # Bug detection patterns for beginner-friendly frontend issues
     checks = [
+        ("Missing lang attribute on html", r'<html(?![^>]*lang=)', "index.html"),
+        ("Missing charset declaration", r'<meta charset="utf-8">', "index.html"),
         ("Missing viewport meta tag", r'<meta name="viewport"', "index.html"),
-        ("Missing type attribute for stylesheet", r'<link.*?rel="stylesheet".*?type="text/css"', "index.html"),
-        ("Script in head without defer/async", r'<head>.*?<script(?!.*(?:defer|async))', "index.html"),
-        ("Missing lang attribute on html tag", r'<html[^>]*lang=', "index.html"),
-        ("Missing alt attribute on img", r'<img(?![^>]*alt=)', "index.html"),
-        ("JavaScript void(0) bad practice", r'href="javascript:void\(0\)"', "index.html"),
-        ("Missing href attribute", r'<a(?![^>]*href=)[^>]*>', "index.html"),
-        ("Broken link reference", r'href="contact\.html"', "index.html"),
-        ("Label missing for attribute", r'<label(?![^>]*for=)', "index.html"),
-        ("Input without id", r'<input(?![^>]*id=)', "index.html"),
-        ("Unclosed div tag", r'<div class="product">(?!.*</div>)', "index.html"),
+        ("Missing favicon", r'<link rel="icon"', "index.html"),
+        ("Image without alt attribute", r'<img src="logo\.png"(?![^>]*alt=)', "index.html"),
+        ("Missing href attribute", r'<a(?![^>]*href=)[^>]*>Products</a>', "index.html"),
+        ("Label missing for attribute", r'<label(?![^>]*for=)[^>]*>Search Products:', "index.html"),
+        ("Input without id", r'<input type="text"(?![^>]*id=)', "index.html"),
+        ("Unclosed div tag", r'<div class="product">(?!.*</div>.*<div class="product">)', "index.html"),
         ("Image without alt attribute", r'<img src="product1\.jpg"(?![^>]*alt=)', "index.html"),
         ("Button without type", r'<button(?![^>]*type=).*onclick="addToCart\(\)"', "index.html"),
-        ("Broken image source", r'src="missing-image\.jpg"', "index.html"),
         ("Missing closing p tag", r'<p>\$699(?!</p>)', "index.html"),
         ("Form without action", r'<form(?![^>]*action=)', "index.html"),
         ("Input without name attribute", r'<input type="email"(?![^>]*name=)', "index.html"),
         ("Submit button outside form", r'</form>\s*<button type="submit"', "index.html"),
-        ("Deprecated center tag", r'<center>', "index.html"),
-        ("Missing table headers", r'<table>(?!.*<th>)', "index.html"),
-        ("Invalid nested anchor tags", r'<a[^>]*>\s*<a[^>]*>', "index.html"),
-        ("Missing closing div", r'<div class="product">.*(?!</div>)', "index.html"),
-        ("Inline CSS in HTML", r'<style>', "index.html"),
-        ("Script tag issues", r'<script>(?!.*</script>)', "index.html"),
-        ("Missing semicolon in JS", r'var cart = \[\](?!;)', "index.html"),
-        ("Function not properly defined", r'function addToCart\(\) {', "index.html"),
-        ("Undefined variable usage", r'cart\.push\(item\)', "index.html"),
-        ("Console.log instead of error handling", r'console\.log\("Added to cart"\)', "index.html"),
-        ("Missing function closing brace", r'function checkout\(\) {.*if.*alert.*(?!})', "index.html"),
-        ("Document.write usage", r'document\.write', "index.html"),
+        ("Table without th elements", r'<table>(?!.*<th>)', "index.html"),
+        ("Missing heading hierarchy", r'<h4>Featured Products</h4>(?!.*<h2>)', "index.html"),
+        ("List without proper structure", r'<div class="category-list">(?!.*<ul>)', "index.html"),
+        ("Required field missing required", r'Name \(Required\).*<input(?![^>]*required)', "index.html"),
+        ("Image with invalid attributes", r'width="abc"', "index.html"),
+        ("Missing semantic structure", r'<div>\s*<p>Contact:', "index.html"),
+        ("Link without text content", r'<a href="/privacy"></a>', "index.html"),
+        ("Empty heading", r'<h3></h3>', "index.html"),
+        ("Empty paragraph", r'<p></p>', "index.html"),
+        ("Missing copyright structure", r'<div>&copy;', "index.html"),
+        ("Script without type", r'<script>(?![^>]*type=)', "index.html"),
+        ("Missing semicolon", r'var cart = \[\](?![^}]*;)', "index.html"),
+        ("Function syntax error", r'function addToCart\(\) {[^}]*alert[^}]*(?!})', "index.html"),
+        ("Missing closing brace", r'alert\("Added to cart"\)(?!\s*})', "index.html"),
+        ("Undefined variable", r'console\.log\(undefinedVar\)', "index.html"),
     ]
     
     # Check each pattern
@@ -60,19 +60,16 @@ def detect_bugs_site1():
         else:
             continue
             
-        if re.search(pattern, content, re.DOTALL | re.IGNORECASE):
+        matches = re.search(pattern, content, re.DOTALL | re.IGNORECASE)
+        if matches:
             bugs_found.append(f"Bug {i}: {bug_name} in {file_name}")
-        else:
-            # For negative checks (missing elements)
-            if "Missing" in bug_name or "without" in bug_name:
-                bugs_found.append(f"Bug {i}: {bug_name} in {file_name}")
+        elif "Missing" in bug_name or "without" in bug_name:
+            bugs_found.append(f"Bug {i}: {bug_name} in {file_name}")
     
     return bugs_found
 
 if __name__ == "__main__":
-    print("=== E-commerce Site Bug Detection ===")
     bugs = detect_bugs_site1()
     print(f"Found {len(bugs)} bugs:")
     for bug in bugs:
-        print(f"  ✗ {bug}")
-    print("\nNote: This script detects intentionally injected bugs for training purposes.")
+        print(f"  - {bug}")

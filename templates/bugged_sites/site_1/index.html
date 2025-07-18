@@ -1,73 +1,62 @@
 
 <!DOCTYPE html>
+<!-- BUG 1: Missing lang attribute -->
 <html>
 <head>
+    <!-- BUG 2: Missing charset declaration -->
     <title>ShopBug - E-commerce Site</title>
-    <meta charset="utf-8">
-    <!-- BUG 1: Missing viewport meta tag -->
+    <!-- BUG 3: Missing viewport meta tag -->
     <link rel="stylesheet" href="style.css">
-    <!-- BUG 2: Missing type attribute for stylesheet -->
-    <script src="cart.js"></script>
-    <!-- BUG 3: Script in head without defer/async -->
+    <!-- BUG 4: Missing favicon -->
 </head>
 <body>
-    <!-- BUG 4: Missing lang attribute on html tag -->
     <header>
         <h1>ShopBug Store</h1>
         <!-- BUG 5: Missing alt attribute -->
         <img src="logo.png" width="100">
         <nav>
-            <!-- BUG 6: href="javascript:void(0)" bad practice -->
-            <a href="javascript:void(0)">Home</a>
-            <!-- BUG 7: Missing href attribute -->
+            <a href="/">Home</a>
+            <!-- BUG 6: Missing href attribute -->
             <a>Products</a>
-            <!-- BUG 8: Broken link -->
-            <a href="contact.html">Contact</a>
+            <a href="/contact">Contact</a>
         </nav>
     </header>
     
     <main>
-        <!-- BUG 9: Missing for attribute on label -->
+        <!-- BUG 7: Missing for attribute on label -->
         <label>Search Products:</label>
-        <!-- BUG 10: Input without id -->
+        <!-- BUG 8: Input without id to match label -->
         <input type="text" placeholder="Enter product name">
         
         <section class="products">
-            <!-- BUG 11: Unclosed div tag -->
+            <!-- BUG 9: Unclosed div tag -->
             <div class="product">
-                <!-- BUG 12: Image without alt -->
+                <!-- BUG 10: Image without alt -->
                 <img src="product1.jpg">
                 <h3>Laptop</h3>
                 <p>$999</p>
-                <!-- BUG 13: Button without type -->
+                <!-- BUG 11: Button without type -->
                 <button onclick="addToCart()">Add to Cart</button>
-            </div>
             
             <div class="product">
-                <!-- BUG 14: Broken image source -->
-                <img src="missing-image.jpg" alt="Phone">
+                <img src="product2.jpg" alt="Phone">
                 <h3>Phone</h3>
-                <!-- BUG 15: Missing closing tag -->
+                <!-- BUG 12: Missing closing p tag -->
                 <p>$699
                 <button type="button" onclick="addToCart(2)">Add to Cart</button>
             </div>
         </section>
         
-        <!-- BUG 16: Form without action -->
+        <!-- BUG 13: Form without action -->
         <form method="post">
             <h3>Newsletter</h3>
-            <!-- BUG 17: Input without name attribute -->
+            <!-- BUG 14: Input without name attribute -->
             <input type="email" placeholder="Your email" required>
-            <!-- BUG 18: Submit button outside form scope issue -->
+            <!-- BUG 15: Button outside form -->
         </form>
         <button type="submit">Subscribe</button>
         
-        <!-- BUG 19: Deprecated center tag -->
-        <center>
-            <p>Follow us on social media!</p>
-        </center>
-        
-        <!-- BUG 20: Missing table headers -->
+        <!-- BUG 16: Table without th elements -->
         <table>
             <tr>
                 <td>Product</td>
@@ -80,42 +69,60 @@
                 <td>5</td>
             </tr>
         </table>
+        
+        <!-- BUG 17: Missing heading hierarchy (h2 missing) -->
+        <h4>Featured Products</h4>
+        
+        <!-- BUG 18: List without proper ul/li structure -->
+        <div class="category-list">
+            <p>Electronics</p>
+            <p>Clothing</p>
+            <p>Books</p>
+        </div>
+        
+        <!-- BUG 19: Required field without required attribute -->
+        <form>
+            <label for="name">Name (Required):</label>
+            <input type="text" id="name" name="name">
+            <button type="submit">Submit</button>
+        </form>
+        
+        <!-- BUG 20: Image with incorrect attributes -->
+        <img src="banner.jpg" width="abc" height="xyz">
     </main>
     
     <footer>
-        <!-- BUG 21: Invalid nested anchor tags -->
-        <a href="/">
-            <a href="/privacy">Privacy Policy</a>
-        </a>
-        <!-- BUG 22: Missing closing div from line ~20 -->
-        <p>&copy; 2024 ShopBug Store</p>
+        <!-- BUG 21: Missing semantic structure -->
+        <div>
+            <p>Contact: shop@example.com</p>
+            <p>Phone: 555-0123</p>
+        </div>
+        
+        <!-- BUG 22: Link without proper text -->
+        <a href="/privacy"></a>
+        
+        <!-- BUG 23: Empty heading -->
+        <h3></h3>
+        
+        <!-- BUG 24: Paragraph without content -->
+        <p></p>
+        
+        <!-- BUG 25: Missing copyright info structure -->
+        <div>&copy; 2024 ShopBug Store</div>
     </footer>
     
-    <!-- BUG 23: Inline CSS in HTML -->
-    <style>
-        body { margin: 0; }
-    </style>
-    
-    <!-- BUG 24: Script tag without proper closing -->
+    <!-- BUG 26: Missing script type -->
     <script>
-        // BUG 25: Missing semicolon
+        // BUG 27: Missing semicolon
         var cart = []
         
-        // BUG 26: Function not properly defined
+        // BUG 28: Function with syntax error -->
         function addToCart() {
-            // BUG 27: Undefined variable
-            cart.push(item);
-            // BUG 28: Console.log instead of proper error handling
-            console.log("Added to cart");
-        }
+            alert("Added to cart")
+        // BUG 29: Missing closing brace
         
-        // BUG 29: Missing function closing brace
-        function checkout() {
-            if (cart.length > 0) {
-                alert("Checkout successful!");
-        
-        // BUG 30: Document.write usage (bad practice)
-        document.write("<p>Cart updated</p>");
+        // BUG 30: Undefined variable
+        console.log(undefinedVar);
     </script>
 </body>
 </html>
