@@ -23,7 +23,6 @@
 <div class="section">
     <h3>⏱ Timer Control</h3>
     <form method="POST">
-        <input type="password" name="password" placeholder="Admin Password" required>
         <input type="number" name="duration" placeholder="Minutes" value="{{ timer['duration'] }}">
         <button name="action" value="start_timer">▶ Start</button>
         <button name="action" value="stop_timer">⏹ Stop</button>
@@ -35,7 +34,6 @@
 <div class="section">
     <h3>✏ Edit Scores</h3>
     <form method="POST">
-        <input type="password" name="password" placeholder="Admin Password" required><br>
         <input type="hidden" name="action" value="update_scores">
         <table>
             <tr><th>Team</th><th>Score</th><th>Time</th></tr>
@@ -55,14 +53,12 @@
 <div class="section">
     <h3>👥 Manage Teams</h3>
     <form method="POST">
-        <input type="password" name="password" placeholder="Admin Password" required>
         <input type="text" name="teamname" placeholder="Team Name">
         <button name="action" value="add_team">➕ Add</button>
         <button name="action" value="delete_team">🗑 Delete</button>
     </form>
 
     <form method="POST" enctype="multipart/form-data">
-        <input type="password" name="password" placeholder="Admin Password" required>
         <input type="file" name="file" accept=".txt,.csv">
         <button name="action" value="bulk_teams">📥 Bulk Upload</button>
     </form>
@@ -78,7 +74,6 @@
 <div class="section">
     <h3>🧨 Reset Database (New Round)</h3>
     <form method="POST">
-        <input type="password" name="password" required>
         <button name="action" value="reset_db" onclick="return confirm('Are you sure you want to erase ALL scores and teams?')">💥 Reset Everything</button>
     </form>
 </div>
