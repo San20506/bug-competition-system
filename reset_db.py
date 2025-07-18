@@ -1,3 +1,4 @@
+
 import sqlite3
 import os
 
@@ -13,7 +14,8 @@ c = conn.cursor()
 # Create tables
 c.execute("""
 CREATE TABLE teams (
-    name TEXT PRIMARY KEY
+    name TEXT PRIMARY KEY,
+    password TEXT
 )
 """)
 
@@ -26,7 +28,12 @@ CREATE TABLE scores (
 )
 """)
 
+# Insert example teams for testing
+c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("alpha", "bug123"))
+c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("beta", "fix456"))
+c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("gamma", "patch789"))
+
 conn.commit()
 conn.close()
 
-print("✅ Fresh database created.")
+print("✅ Fresh database created with example teams.")
