@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - Bug Site QR Management</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        input, button { padding: 10px; margin: 5px; }
+        .form-section { border: 1px solid #ccc; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .success { color: green; }
+        .qr-preview { text-align: center; margin: 20px 0; }
+        .qr-preview img { border: 2px solid #ccc; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h2>🔧 Bug Site QR Code Management</h2>
+    
+    {% if msg %}
+        <p class="success">{{ msg }}</p>
+    {% endif %}
+    
+    <div class="form-section">
+        <h3>📝 Update Bug Site URL</h3>
+        <form method="POST">
+            <input type="url" name="bug_url" value="{{ bug_url }}" placeholder="https://example.com/buggy-site" style="width: 400px;" required>
+            <button type="submit">🔄 Update URL & Generate QR</button>
+        </form>
+    </div>
+    
+    <div class="form-section">
+        <h3>📋 Current QR Code Preview</h3>
+        <div class="qr-preview">
+            <img src="/static/bugsite_qr.png" alt="Current QR Code" style="max-width: 300px;">
+            <p><strong>Current URL:</strong> <a href="{{ bug_url }}" target="_blank">{{ bug_url }}</a></p>
+        </div>
+    </div>
+    
+    <br>
+    <a href="/admin/dashboard">⬅ Back to Dashboard</a>
+</body>
+</html>

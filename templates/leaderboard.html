@@ -1,27 +1,58 @@
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>Leaderboard</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
+        th { background-color: #f2f2f2; font-weight: bold; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .rank-1 { background-color: #ffd700 !important; }
+        .rank-2 { background-color: #c0c0c0 !important; }
+        .rank-3 { background-color: #cd7f32 !important; }
+        .nav-links { margin: 20px 0; }
+        .nav-links a { margin-right: 15px; text-decoration: none; color: #007bff; }
+        .nav-links a:hover { text-decoration: underline; }
+        .no-scores { text-align: center; color: #666; font-style: italic; }
+    </style>
+    <script>
+        // Auto-refresh every 30 seconds
+        setTimeout(() => { location.reload(); }, 30000);
+    </script>
 </head>
 <body>
     <h2>🏆 Leaderboard</h2>
-    <table border="1" cellpadding="10">
-        <tr>
-            <th>Rank</th>
-            <th>Team</th>
-            <th>Score</th>
-            <th>Time</th>
-        </tr>
-        {% for row in rows %}
-        <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ row[0] }}</td>
-            <td>{{ row[1] }}</td>
-            <td>{{ row[2] }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    
+    {% if rows %}
+        <table>
+            <tr>
+                <th>Rank</th>
+                <th>Team Name</th>
+                <th>Score</th>
+                <th>Time Taken</th>
+            </tr>
+            {% for row in rows %}
+            <tr {% if loop.index == 1 %}class="rank-1"{% elif loop.index == 2 %}class="rank-2"{% elif loop.index == 3 %}class="rank-3"{% endif %}>
+                <td>
+                    {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
+                </td>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }} points</td>
+                <td>{{ row[2] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p class="no-scores">📝 No submissions yet. Be the first to submit!</p>
+    {% endif %}
 
-    <br><a href="/">⬅ Back to Home</a>
+    <div class="nav-links">
+        <a href="/">⬅ Back to Home</a>
+        <a href="/bug">🐛 View Bug Site</a>
+    </div>
+    
+    <p style="color: #666; font-size: 12px;">🔄 Page auto-refreshes every 30 seconds</p>
 </body>
 </html>
