@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - Sites Management</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .section { border: 1px solid #ccc; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        input, button, select { padding: 10px; margin: 5px; }
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .success { color: green; font-weight: bold; }
+        .site-form { display: inline-block; margin: 10px; }
+        .qr-preview { max-width: 100px; }
+    </style>
+</head>
+<body>
+    <h2>🌐 Bug Sites Management</h2>
+    
+    {% if msg %}
+        <p class="success">{{ msg }}</p>
+    {% endif %}
+    
+    <div class="section">
+        <h3>📝 Current Sites</h3>
+        <table>
+            <tr>
+                <th>Site ID</th>
+                <th>Name</th>
+                <th>URL</th>
+                <th>QR Code</th>
+                <th>Actions</th>
+            </tr>
+            {% for site_id, site_info in sites.items() %}
+            <tr>
+                <td>{{ site_id }}</td>
+                <td>{{ site_info.name }}</td>
+                <td><a href="{{ site_info.url }}" target="_blank">{{ site_info.url }}</a></td>
+                <td>
+                    <img src="/static/qr/site_{{ site_id }}.png" alt="QR {{ site_id }}" class="qr-preview">
+                </td>
+                <td>
+                    <form method="POST" class="site-form">
+                        <input type="hidden" name="action" value="update_site">
+                        <input type="hidden" name="site_id" value="{{ site_id }}">
+                        <input type="text" name="site_name" value="{{ site_info.name }}" required>
+                        <input type="url" name="site_url" value="{{ site_info.url }}" required>
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    
+    <div class="section">
+        <h3>🔄 Bulk Actions</h3>
+        <form method="POST">
+            <input type="hidden" name="action" value="regenerate_all">
+            <button type="submit">🔄 Regenerate All QR Codes</button>
+        </form>
+    </div>
+    
+    <br>
+    <a href="/admin/dashboard">⬅ Back to Dashboard</a>
+</body>
+</html>

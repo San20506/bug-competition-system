@@ -16,23 +16,33 @@ if not os.path.exists(STATIC_FOLDER):
     os.makedirs(STATIC_FOLDER)
 
 
-def generate_qr_code(url):
-    """Generate QR code for the given URL and save it"""
+def generate_qr_code(url, site_id):
+    """Generate QR code for the given URL and save it for specific site"""
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
     qr.add_data(url)
     qr.make(fit=True)
     
     img = qr.make_image(fill_color="black", back_color="white")
-    img.save('static/bugsite_qr.png')
+    img.save(f'static/qr/site_{site_id}.png')
 
 
-def get_bug_url():
-    """Get the current bug site URL"""
+def get_sites():
+    """Get all sites from configuration"""
     try:
-        with open('admin/bug_url.txt', 'r') as f:
-            return f.read().strip()
+        with open('admin/sites.json', 'r') as f:
+            return json.load(f)
     except:
-        return "https://example.com/buggy-site"
+        return {}
+
+
+def get_team_site(team_name):
+    """Get the site ID assigned to a team"""
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute("SELECT site_id FROM teams WHERE name = ?", (team_name,))
+    result = c.fetchone()
+    conn.close()
+    return result[0] if result else 1
 
 
 def format_time(seconds):
@@ -45,7 +55,7 @@ def format_time(seconds):
 
 
 # ---- STATIC FILES ----
-@app.route('/static/<filename>')
+@app.route('/static/<path:filename>')
 def static_files(filename):
     return send_from_directory('static', filename)
 
@@ -83,16 +93,30 @@ def logout():
     return redirect('/login')
 
 
-# ---- BUG SITE QR CODE (PUBLIC VIEW) ----
+# ---- BUG SITE QR CODE (TEAM-SPECIFIC VIEW) ----
 @app.route('/bug')
 def bug_site():
-    bug_url = get_bug_url()
+    if 'team' not in session:
+        return redirect('/login')
+    
+    team_name = session['team']
+    site_id = get_team_site(team_name)
+    sites = get_sites()
+    
+    if str(site_id) not in sites:
+        return "Site not found", 404
+    
+    site_info = sites[str(site_id)]
+    qr_path = f'static/qr/site_{site_id}.png'
     
     # Generate QR code if it doesn't exist
-    if not os.path.exists('static/bugsite_qr.png'):
-        generate_qr_code(bug_url)
+    if not os.path.exists(qr_path):
+        generate_qr_code(site_info['url'], site_id)
     
-    return render_template('bug_site.html', bug_url=bug_url)
+    return render_template('bug_site.html', 
+                         bug_url=site_info['url'], 
+                         site_name=site_info['name'],
+                         site_id=site_id)
 
 
 # ---- TEAM SUBMISSION PAGE ----
@@ -123,6 +147,7 @@ def index():
 
         file = request.files['zipfile']
         teamname = session['team']
+        team_site_id = get_team_site(teamname)
 
         if os.path.exists(UPLOAD_FOLDER):
             shutil.rmtree(UPLOAD_FOLDER)
@@ -134,7 +159,8 @@ def index():
             zip_ref.extractall(UPLOAD_FOLDER)
         os.remove(zip_path)
 
-        score = check_all_fixes(UPLOAD_FOLDER)
+        # Pass site ID to scoring function for validation
+        score = check_all_fixes(UPLOAD_FOLDER, team_site_id)
         time_taken = int(status['duration']) * 60 - remaining
 
         conn = sqlite3.connect('database.db')
@@ -142,9 +168,9 @@ def index():
         c.execute("SELECT id FROM scores WHERE name=?", (teamname,))
         existing = c.fetchone()
         if existing:
-            c.execute("UPDATE scores SET score=?, duration=? WHERE name=?", (score, time_taken, teamname))
+            c.execute("UPDATE scores SET score=?, duration=?, site_id=? WHERE name=?", (score, time_taken, team_site_id, teamname))
         else:
-            c.execute("INSERT INTO scores (name, score, duration) VALUES (?, ?, ?)", (teamname, score, time_taken))
+            c.execute("INSERT INTO scores (name, score, duration, site_id) VALUES (?, ?, ?, ?)", (teamname, score, time_taken, team_site_id))
         conn.commit()
         conn.close()
 
@@ -158,37 +184,57 @@ def index():
 def leaderboard():
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
-    c.execute("SELECT name, score, duration FROM scores ORDER BY score DESC, duration ASC")
+    c.execute("SELECT s.name, s.score, s.duration, s.site_id FROM scores s ORDER BY s.score DESC, s.duration ASC")
     rows = c.fetchall()
     conn.close()
     
-    # Format time for display
+    sites = get_sites()
+    
+    # Format time for display and add site names
     formatted_rows = []
     for row in rows:
-        formatted_rows.append((row[0], row[1], format_time(row[2])))
+        site_name = sites.get(str(row[3]), {}).get('name', f'Site {row[3]}')
+        formatted_rows.append((row[0], row[1], format_time(row[2]), site_name))
     
     return render_template("leaderboard.html", rows=formatted_rows)
 
 
-# ---- ADMIN BUG QR MANAGEMENT ----
-@app.route('/admin/bug_qr', methods=['GET', 'POST'])
-def admin_bug_qr():
+# ---- ADMIN SITES MANAGEMENT ----
+@app.route('/admin/sites', methods=['GET', 'POST'])
+def admin_sites():
     if 'admin' not in session:
         return redirect('/login')
     
     msg = ""
-    bug_url = get_bug_url()
+    sites = get_sites()
     
     if request.method == 'POST':
-        new_url = request.form.get('bug_url', '').strip()
-        if new_url:
-            with open('admin/bug_url.txt', 'w') as f:
-                f.write(new_url)
-            generate_qr_code(new_url)
-            msg = "✅ Bug site URL and QR code updated!"
-            bug_url = new_url
+        action = request.form.get('action')
+        
+        if action == 'update_site':
+            site_id = request.form.get('site_id')
+            site_name = request.form.get('site_name', '').strip()
+            site_url = request.form.get('site_url', '').strip()
+            
+            if site_id and site_name and site_url:
+                sites[site_id] = {
+                    'name': site_name,
+                    'url': site_url
+                }
+                
+                with open('admin/sites.json', 'w') as f:
+                    json.dump(sites, f, indent=2)
+                
+                # Regenerate QR code
+                generate_qr_code(site_url, site_id)
+                msg = f"✅ Site {site_id} updated and QR code regenerated!"
+        
+        elif action == 'regenerate_all':
+            for site_id, site_info in sites.items():
+                generate_qr_code(site_info['url'], site_id)
+            msg = "🔄 All QR codes regenerated!"
     
-    return render_template('admin_bug_qr.html', msg=msg, bug_url=bug_url)
+    return render_template('admin_sites.html', msg=msg, sites=sites)
 
 
 # ---- ADMIN DASHBOARD ----
@@ -251,10 +297,11 @@ def admin_dashboard():
         elif action == "add_team":
             name = request.form.get("teamname", "").strip()
             password = request.form.get("teampassword", "").strip()
+            site_id = int(request.form.get("site_id", 1))
             try:
-                c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", (name, password))
+                c.execute("INSERT INTO teams (name, password, site_id) VALUES (?, ?, ?)", (name, password, site_id))
                 conn.commit()
-                msg = f"✅ Team '{name}' added."
+                msg = f"✅ Team '{name}' added with Site {site_id}."
             except:
                 msg = f"⚠️ Team '{name}' already exists."
 
@@ -272,6 +319,13 @@ def admin_dashboard():
             conn.commit()
             msg = f"🔑 Password changed for team '{name}'."
 
+        elif action == "change_site":
+            name = request.form.get("teamname", "").strip()
+            new_site_id = int(request.form.get("site_id", 1))
+            c.execute("UPDATE teams SET site_id = ? WHERE name = ?", (new_site_id, name))
+            conn.commit()
+            msg = f"🎯 Site assignment changed for team '{name}' to Site {new_site_id}."
+
         elif action == "bulk_teams":
             file = request.files.get("file")
             if file:
@@ -281,8 +335,9 @@ def admin_dashboard():
                 for row in csv_reader:
                     if len(row) >= 2:
                         name, password = row[0].strip(), row[1].strip()
+                        site_id = int(row[2]) if len(row) > 2 and row[2].strip().isdigit() else 1
                         try:
-                            c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", (name, password))
+                            c.execute("INSERT INTO teams (name, password, site_id) VALUES (?, ?, ?)", (name, password, site_id))
                             added += 1
                         except:
                             continue
@@ -300,11 +355,13 @@ def admin_dashboard():
         timer = json.load(f)
     c.execute("SELECT id, name, score, duration FROM scores ORDER BY score DESC")
     scores = c.fetchall()
-    c.execute("SELECT name, password FROM teams ORDER BY name")
+    c.execute("SELECT name, password, site_id FROM teams ORDER BY name")
     teams = c.fetchall()
     conn.close()
+    
+    sites = get_sites()
 
-    return render_template("dashboard.html", msg=msg, timer=timer, scores=scores, teams=teams)
+    return render_template("dashboard.html", msg=msg, timer=timer, scores=scores, teams=teams, sites=sites)
 
 
 # ---- RUN SERVER ----

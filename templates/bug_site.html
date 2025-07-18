@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Bug Site - QR Code</title>
+    <title>{{ site_name }} - Bug Site</title>
     <style>
         body { font-family: Arial; margin: 20px; text-align: center; }
         .qr-container { margin: 20px auto; max-width: 400px; }
@@ -10,14 +10,21 @@
         .url-link { font-size: 18px; margin: 20px 0; }
         .url-link a { color: #007bff; text-decoration: none; }
         .url-link a:hover { text-decoration: underline; }
+        .site-info { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
     </style>
 </head>
 <body>
-    <h2>🐛 Bug Site Access</h2>
+    <h2>🐛 Your Assigned Bug Site</h2>
+    
+    <div class="site-info">
+        <h3>{{ site_name }}</h3>
+        <p><strong>Site ID:</strong> {{ site_id }}</p>
+        <p>🎯 This is your team's assigned site. Only submit fixes for this site!</p>
+    </div>
     
     <div class="qr-container">
         <div class="qr-code">
-            <img src="/static/bugsite_qr.png" alt="Bug Site QR Code" style="max-width: 100%;">
+            <img src="/static/qr/site_{{ site_id }}.png" alt="Bug Site QR Code" style="max-width: 100%;">
         </div>
         
         <div class="url-link">
@@ -26,7 +33,7 @@
         </div>
     </div>
     
-    <p>📱 Scan the QR code or click the link to access the buggy website</p>
+    <p>📱 Scan the QR code or click the link to access your buggy website</p>
     
     <br>
     <a href="/">⬅ Back to Home</a>
