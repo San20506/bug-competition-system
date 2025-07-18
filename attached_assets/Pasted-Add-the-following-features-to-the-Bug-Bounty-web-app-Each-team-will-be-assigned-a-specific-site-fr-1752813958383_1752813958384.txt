@@ -1,0 +1,74 @@
+Add the following features to the Bug Bounty web app:
+
+Each team will be assigned a specific site from a pool of 5 bugged sites. This means:
+
+When a team logs in, they should only see the QR code and URL of their assigned site.
+
+Teams must only submit fixes related to their assigned site.
+
+Submissions should first be checked to ensure they match the correct site before scoring.
+
+The check_all_fixes function must accept and verify the site ID or path to ensure the submitted fix corresponds to the assigned site.
+
+An admin panel should:
+
+Allow the admin to add, remove, or edit any of the 5 bugged site URLs.
+
+Automatically regenerate the QR code when a site URL is updated.
+
+Store QR codes in static/qr/site_<id>.png.
+
+Store site URLs in a file like sites.json or a database table.
+
+The admin should also be able to assign or change a team’s site ID during team creation, via the admin panel, or during CSV import.
+
+The leaderboard should clearly reflect which team was assigned to which site.
+
+Only admins can modify site assignments or URLs. Teams can view only their own QR code and site URL.
+
+
+
+
+
+
+
+
+You said:
+select 5 random templates from html codex free ones and inject 30 bugs in each of them ang give me errors and the code to detect them
+
+
+ChatGPT said:
+
+Thought for a couple of seconds
+Here’s a structured prompt you can feed to an AI assistant to generate the exact setup you described:
+
+Add the following to the Bug Bounty platform:
+
+Select 5 random HTMLCodex templates (free) and inject exactly 30 bugs into each (HTML/CSS/JS issues).
+
+Generate an error report listing all bugs per template (e.g., missing alt attributes, broken links, missing semicolons, unclosed tags).
+
+Provide static code that automatically detects these errors using linting or regex-based scripts (Node.js or Python).
+
+Ensure each template with injected bugs includes both:
+
+The bugged version
+
+The clean version
+
+The error detection script that identifies all 30 issues in that template
+
+Output should be in a folder structure:
+
+bash
+Copy
+Edit
+/templates/
+  template1/
+    clean/
+    buggy/
+    detect_errors.(js|py)
+  template2/
+    ...
+Additionally, provide a summary CSV with columns: template_name, error_count, bugs_listed.
+
