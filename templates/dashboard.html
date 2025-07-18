@@ -61,6 +61,12 @@ html
         <h4>➕ Add Single Team</h4>
         <input type="text" name="teamname" placeholder="Team Name" required>
         <input type="text" name="teampassword" placeholder="Password" required>
+        <select name="site_id" required>
+            <option value="">Select Site</option>
+            {% for site_id, site_info in sites.items() %}
+            <option value="{{ site_id }}">Site {{ site_id }} - {{ site_info.name }}</option>
+            {% endfor %}
+        </select>
         <button name="action" value="add_team">Add Team</button>
     </form>
 
@@ -77,13 +83,31 @@ html
         <button name="action" value="change_password">Change Password</button>
     </form>
 
+    <!-- Change Site Assignment -->
+    <form method="POST">
+        <h4>🎯 Change Team Site Assignment</h4>
+        <select name="teamname" required>
+            <option value="">Select Team</option>
+            {% for team in teams %}
+            <option value="{{ team[0] }}">{{ team[0] }} (Site {{ team[2] }})</option>
+            {% endfor %}
+        </select>
+        <select name="site_id" required>
+            <option value="">New Site</option>
+            {% for site_id, site_info in sites.items() %}
+            <option value="{{ site_id }}">Site {{ site_id }} - {{ site_info.name }}</option>
+            {% endfor %}
+        </select>
+        <button name="action" value="change_site">Change Site</button>
+    </form>
+
     <!-- Delete Team -->
     <form method="POST">
         <h4>🗑 Delete Team</h4>
         <select name="teamname" required>
             <option value="">Select Team</option>
             {% for team in teams %}
-            <option value="{{ team[0] }}">{{ team[0] }}</option>
+            <option value="{{ team[0] }}">{{ team[0] }} (Site {{ team[2] }})</option>
             {% endfor %}
         </select>
         <button name="action" value="delete_team" onclick="return confirm('Delete this team and their scores?')">Delete Team</button>
@@ -102,11 +126,12 @@ html
     <h4>📋 Registered Teams</h4>
     <div class="team-table">
         <table>
-            <tr><th>Team Name</th><th>Password</th></tr>
+            <tr><th>Team Name</th><th>Password</th><th>Assigned Site</th></tr>
             {% for team in teams %}
             <tr>
                 <td>{{ team[0] }}</td>
                 <td>{{ team[1] }}</td>
+                <td>Site {{ team[2] }} - {{ sites.get(team[2]|string, {}).get('name', 'Unknown') }}</td>
             </tr>
             {% endfor %}
         </table>

@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- BUG 1: Missing charset -->
+    <!-- BUG 2: Missing viewport meta tag -->
+    <title>SecureBank - Online Banking</title>
+    <link rel="stylesheet" href="banking.css">
+    <!-- BUG 3: Missing security headers meta tags -->
+</head>
+<body>
+    <header>
+        <h1>SecureBank</h1>
+        <!-- BUG 4: Image without alt text -->
+        <img src="bank-logo.png" width="80">
+        
+        <nav>
+            <!-- BUG 5: Insecure link protocols -->
+            <a href="http://insecure-site.com">Home</a>
+            <a href="#accounts">Accounts</a>
+            <a href="#transfer">Transfer</a>
+            <!-- BUG 6: Missing href -->
+            <a>Support</a>
+        </nav>
+    </header>
+    
+    <main>
+        <!-- BUG 7: Login form without HTTPS enforcement -->
+        <form action="/login" method="post" class="login-form">
+            <h2>Login to Your Account</h2>
+            <!-- BUG 8: Password field without autocomplete=off -->
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <!-- BUG 9: Missing CSRF protection -->
+            <!-- BUG 10: Remember me checkbox without security consideration -->
+            <label><input type="checkbox" name="remember"> Remember me</label>
+            <button type="submit">Login</button>
+        </form>
+        
+        <section class="account-overview">
+            <h2>Account Overview</h2>
+            <!-- BUG 11: Sensitive data in HTML comments -->
+            <!-- Account balance: $50,000 - User ID: 12345 -->
+            
+            <!-- BUG 12: Table without proper headers -->
+            <table class="accounts">
+                <tr>
+                    <td>Account Type</td>
+                    <td>Balance</td>
+                    <td>Actions</td>
+                </tr>
+                <tr>
+                    <td>Checking</td>
+                    <!-- BUG 13: Unescaped user data -->
+                    <td id="balance">$2,500.00</td>
+                    <td>
+                        <!-- BUG 14: Button without proper security -->
+                        <button onclick="viewStatement()">View Statement</button>
+                    </td>
+                </tr>
+            </table>
+        </section>
+        
+        <!-- BUG 15: Form without proper validation -->
+        <form action="/transfer" method="post" class="transfer-form">
+            <h3>Transfer Money</h3>
+            <!-- BUG 16: Input without proper validation -->
+            <input type="text" name="recipient" placeholder="Recipient Account">
+            <!-- BUG 17: Amount field without min/max validation -->
+            <input type="number" name="amount" placeholder="Amount">
+            <!-- BUG 18: Missing hidden form token -->
+            <button type="submit">Transfer Now</button>
+        </form>
+        
+        <!-- BUG 19: Iframe without security attributes -->
+        <iframe src="https://external-widget.com/rates" width="300" height="200"></iframe>
+        
+        <!-- BUG 20: Missing error handling div -->
+        <div id="error-messages">
+            <!-- BUG 21: Error messages in plain text -->
+            <p style="color: red;">Invalid login attempt from IP: 192.168.1.1</p>
+        </div>
+    </main>
+    
+    <aside class="security-info">
+        <h3>Security Tips</h3>
+        <!-- BUG 22: External link without rel="noopener" -->
+        <a href="https://example.com/security" target="_blank">Learn about online security</a>
+        
+        <!-- BUG 23: Missing list structure -->
+        <p>• Never share your password</p>
+        <p>• Use strong passwords</p>
+        <p>• Log out when done</p>
+    </aside>
+    
+    <footer>
+        <!-- BUG 24: Missing contact information structure -->
+        <p>© 2024 SecureBank | Call: 1-800-BANK | Email: support@securebank.com</p>
+        <!-- BUG 25: Missing privacy policy link -->
+    </footer>
+    
+    <script>
+        // BUG 26: Storing sensitive data in JavaScript variables
+        var userAccountNumber = "123456789";
+        var sessionToken = "abc123def456";
+        
+        // BUG 27: Function without input validation
+        function viewStatement() {
+            // BUG 28: Direct window.open without security
+            window.open("/statement?account=" + userAccountNumber);
+        }
+        
+        // BUG 29: Missing XSS protection
+        function displayMessage(msg) {
+            document.getElementById('error-messages').innerHTML = msg;
+        }
+        
+        // BUG 30: Console logging sensitive information
+        console.log("User session token:", sessionToken);
+    </script>
+</body>
+</html>

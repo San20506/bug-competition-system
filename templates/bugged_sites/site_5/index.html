@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- BUG 1: Missing charset declaration -->
+    <!-- BUG 2: Missing viewport meta tag -->
+    <title>LearnBug - Online Learning Platform</title>
+    <link rel="stylesheet" href="learning.css">
+    <!-- BUG 3: Missing Open Graph meta tags -->
+</head>
+<body>
+    <header>
+        <h1>LearnBug Academy</h1>
+        <!-- BUG 4: Image without alt text -->
+        <img src="learn-logo.png" width="70">
+        
+        <nav>
+            <a href="/">Home</a>
+            <a href="#courses">Courses</a>
+            <!-- BUG 5: Missing href attribute -->
+            <a>My Learning</a>
+            <a href="#progress">Progress</a>
+        </nav>
+    </header>
+    
+    <main>
+        <!-- BUG 6: Form without proper attributes -->
+        <form class="search-courses">
+            <h2>Find Your Perfect Course</h2>
+            <!-- BUG 7: Input without label -->
+            <input type="text" placeholder="Search courses..." name="query">
+            <!-- BUG 8: Select without label -->
+            <select name="category">
+                <option value="">All Categories</option>
+                <option value="programming">Programming</option>
+                <option value="design">Design</option>
+                <option value="business">Business</option>
+            </select>
+            <!-- BUG 9: Button without type -->
+            <button>Search Courses</button>
+        </form>
+        
+        <section class="featured-courses">
+            <h2>Featured Courses</h2>
+            
+            <!-- BUG 10: Missing semantic article structure -->
+            <div class="course-card">
+                <h3>JavaScript Fundamentals</h3>
+                <!-- BUG 11: Image without alt text -->
+                <img src="js-course.jpg" class="course-image">
+                <p class="instructor">Instructor: John Smith</p>
+                <p class="description">Learn the basics of JavaScript programming...</p>
+                <!-- BUG 12: Missing rating accessibility -->
+                <div class="rating">★★★★☆</div>
+                <!-- BUG 13: Button without proper attributes -->
+                <button onclick="enrollCourse(1)">Enroll Now - $99</button>
+            </div>
+            
+            <!-- BUG 14: Unclosed div tag -->
+            <div class="course-card">
+                <h3>Web Design Masterclass</h3>
+                <img src="design-course.jpg" alt="Web Design Course" class="course-image">
+                <p class="instructor">Instructor: Jane Doe</p>
+                <p class="description">Master modern web design principles...</p>
+                <div class="rating" aria-label="4 out of 5 stars">★★★★☆</div>
+                <button type="button" onclick="enrollCourse(2)">Enroll Now - $149</button>
+            
+            <div class="course-card">
+                <!-- BUG 15: Missing course title -->
+                <img src="business-course.jpg" alt="Business Course" class="course-image">
+                <p class="instructor">Instructor: Mike Johnson</p>
+                <p class="description">Build your business skills...</p>
+                <div class="rating">★★★☆☆</div>
+                <button type="button" onclick="enrollCourse(3)">Enroll Now - $79</button>
+            </div>
+        </section>
+        
+        <!-- BUG 16: Missing form validation -->
+        <form class="quiz-form" action="/submit-quiz" method="post">
+            <h3>Quick Knowledge Check</h3>
+            <!-- BUG 17: Radio buttons without fieldset -->
+            <p>What is HTML?</p>
+            <input type="radio" name="html" value="markup"> Markup Language
+            <input type="radio" name="html" value="programming"> Programming Language
+            <input type="radio" name="html" value="database"> Database Language
+            
+            <!-- BUG 18: Missing required attribute -->
+            <p>Which is a JavaScript framework?</p>
+            <input type="radio" name="js" value="react"> React
+            <input type="radio" name="js" value="html"> HTML
+            <input type="radio" name="js" value="css"> CSS
+            
+            <button type="submit">Submit Quiz</button>
+        </form>
+        
+        <!-- BUG 19: Table without proper headers -->
+        <table class="progress-table">
+            <tr>
+                <td>Course</td>
+                <td>Progress</td>
+                <td>Status</td>
+            </tr>
+            <tr>
+                <td>JavaScript Basics</td>
+                <td>75%</td>
+                <td>In Progress</td>
+            </tr>
+        </table>
+        
+        <!-- BUG 20: Video without controls -->
+        <section class="preview">
+            <h3>Course Preview</h3>
+            <video src="course-preview.mp4" width="640" height="360"></video>
+        </section>
+    </main>
+    
+    <!-- BUG 21: Aside without semantic structure -->
+    <div class="sidebar">
+        <h3>Learning Stats</h3>
+        <!-- BUG 22: Progress bar without proper attributes -->
+        <div class="progress-bar">
+            <div class="progress" style="width: 60%;"></div>
+        </div>
+        <p>Overall Progress: 60%</p>
+        
+        <!-- BUG 23: List without proper structure -->
+        <h4>Achievements</h4>
+        <p>🏆 First Course Completed</p>
+        <p>📚 5 Courses Enrolled</p>
+        <p>⭐ 10 Quizzes Passed</p>
+        
+        <!-- BUG 24: Newsletter form without proper validation -->
+        <form class="newsletter">
+            <h4>Get Learning Tips</h4>
+            <input type="email" placeholder="Your email">
+            <button type="submit">Subscribe</button>
+        </form>
+    </div>
+    
+    <footer>
+        <!-- BUG 25: Missing structured contact information -->
+        <p>© 2024 LearnBug Academy | support@learnbug.com | Terms | Privacy</p>
+    </footer>
+    
+    <script>
+        // BUG 26: Global variable without proper scope
+        var enrolledCourses = [];
+        var userProgress = {};
+        
+        // BUG 27: Function without input validation
+        function enrollCourse(courseId) {
+            enrolledCourses.push(courseId);
+            // BUG 28: Alert instead of proper UI feedback
+            alert("Enrolled successfully!");
+        }
+        
+        // BUG 29: Missing error handling for quiz submission
+        function submitQuiz() {
+            var answers = document.querySelectorAll('input[type="radio"]:checked');
+            // Process answers without validation
+            console.log("Quiz submitted with", answers.length, "answers");
+        }
+        
+        // BUG 30: Missing accessibility features initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize course catalog without keyboard navigation
+        });
+    </script>
+</body>
+</html>

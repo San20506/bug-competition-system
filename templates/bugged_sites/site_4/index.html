@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+<!-- BUG 1: Missing lang attribute -->
+<html>
+<head>
+    <meta charset="utf-8">
+    <!-- BUG 2: Missing viewport meta tag -->
+    <title>NewsBug - Latest Headlines</title>
+    <!-- BUG 3: Missing meta description -->
+    <link rel="stylesheet" href="layout.css">
+    <!-- BUG 4: Missing preload for critical resources -->
+</head>
+<body>
+    <header>
+        <!-- BUG 5: Missing semantic structure -->
+        <div class="header-content">
+            <h1>NewsBug</h1>
+            <!-- BUG 6: Image without alt text -->
+            <img src="news-logo.svg" width="60">
+            
+            <nav>
+                <a href="/">Home</a>
+                <!-- BUG 7: Relative URL without proper base -->
+                <a href="politics">Politics</a>
+                <a href="#sports">Sports</a>
+                <!-- BUG 8: Missing href -->
+                <a>Weather</a>
+            </nav>
+        </div>
+        
+        <!-- BUG 9: Search form without label -->
+        <form class="search-form">
+            <input type="text" placeholder="Search news...">
+            <!-- BUG 10: Button without type -->
+            <button>Search</button>
+        </form>
+    </header>
+    
+    <main>
+        <!-- BUG 11: Missing article semantic structure -->
+        <section class="featured">
+            <div class="article">
+                <h2>Breaking: Major Technology Breakthrough</h2>
+                <!-- BUG 12: Image without proper attributes -->
+                <img src="tech-news.jpg" class="article-image">
+                <!-- BUG 13: Missing time element -->
+                <p class="date">Published: January 15, 2024</p>
+                <p class="summary">Scientists have made a groundbreaking discovery...</p>
+                <!-- BUG 14: Link without proper attributes -->
+                <a>Read More</a>
+            </div>
+        </section>
+        
+        <section class="news-grid">
+            <!-- BUG 15: Improper heading hierarchy -->
+            <h4>Latest News</h4>
+            
+            <!-- BUG 16: Missing article wrapper -->
+            <div class="news-item">
+                <h3>Economic Updates</h3>
+                <!-- BUG 17: Image without alt -->
+                <img src="economy.jpg" class="thumbnail">
+                <p>The stock market shows positive trends...</p>
+                <!-- BUG 18: Missing publication date -->
+                <a href="/article/economy-update">Continue reading</a>
+            </div>
+            
+            <!-- BUG 19: Unclosed div tag -->
+            <div class="news-item">
+                <h3>Sports Highlights</h3>
+                <img src="sports.jpg" alt="Sports news" class="thumbnail">
+                <p>Local team wins championship game...</p>
+                <a href="/article/sports-championship">Full story</a>
+            
+            <div class="news-item">
+                <!-- BUG 20: Missing heading -->
+                <img src="weather.jpg" alt="Weather forecast" class="thumbnail">
+                <p>Tomorrow's forecast shows sunny skies...</p>
+                <a href="/weather">Weather details</a>
+            </div>
+        </section>
+        
+        <!-- BUG 21: Table without proper structure -->
+        <table class="trending">
+            <tr>
+                <td>Trending Topics</td>
+            </tr>
+            <tr>
+                <td>1. Technology News</td>
+            </tr>
+            <tr>
+                <td>2. Political Updates</td>
+            </tr>
+        </table>
+        
+        <!-- BUG 22: Form without proper attributes -->
+        <form class="newsletter">
+            <h3>Subscribe to Newsletter</h3>
+            <!-- BUG 23: Input without name attribute -->
+            <input type="email" placeholder="Enter your email" required>
+            <button type="submit">Subscribe</button>
+        </form>
+    </main>
+    
+    <!-- BUG 24: Missing aside semantic structure -->
+    <div class="sidebar">
+        <h3>Related Articles</h3>
+        <!-- BUG 25: List without proper structure -->
+        <p>• Technology breakthrough details</p>
+        <p>• Economic analysis report</p>
+        <p>• Sports season overview</p>
+        
+        <!-- BUG 26: Advertisement without proper labeling -->
+        <div class="ad">
+            <img src="ad-banner.jpg" width="300" height="250">
+        </div>
+    </div>
+    
+    <footer>
+        <!-- BUG 27: Missing contact information structure -->
+        <p>© 2024 NewsBug | Contact: news@newsbug.com | Privacy Policy</p>
+    </footer>
+    
+    <script>
+        // BUG 28: Missing error handling
+        function searchNews() {
+            var query = document.querySelector('.search-form input').value;
+            window.location.href = '/search?q=' + query;
+        }
+        
+        // BUG 29: Missing function definition but called in HTML
+        // trackClick() function is referenced but not defined
+        
+        // BUG 30: No accessibility considerations
+        document.addEventListener('click', function(e) {
+            console.log('Clicked:', e.target);
+        });
+    </script>
+</body>
+</html>

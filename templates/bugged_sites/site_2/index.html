@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+<!-- BUG 1: Missing lang attribute -->
+<html>
+<head>
+    <meta charset="utf-8">
+    <!-- BUG 2: Missing viewport meta tag -->
+    <title>SocialBug - Connect with Friends</title>
+    <link rel="stylesheet" href="social.css">
+    <!-- BUG 3: Missing favicon -->
+</head>
+<body>
+    <header>
+        <h1>SocialBug</h1>
+        <!-- BUG 4: Image without alt text -->
+        <img src="logo.svg" width="50" height="50">
+        
+        <nav>
+            <!-- BUG 5: Empty href -->
+            <a href="">Home</a>
+            <!-- BUG 6: Missing href -->
+            <a>Profile</a>
+            <a href="#messages">Messages</a>
+            <!-- BUG 7: Broken internal link -->
+            <a href="#nonexistent">Settings</a>
+        </nav>
+    </header>
+    
+    <main>
+        <!-- BUG 8: Form without method -->
+        <form action="/post">
+            <h2>Share Something</h2>
+            <!-- BUG 9: Textarea without name -->
+            <textarea placeholder="What's on your mind?" rows="3" cols="50"></textarea>
+            <!-- BUG 10: Input without type -->
+            <input placeholder="Add image URL">
+            <!-- BUG 11: Button without type -->
+            <button>Post Update</button>
+        </form>
+        
+        <section class="feed">
+            <!-- BUG 12: Missing article semantic tag -->
+            <div class="post">
+                <div class="user-info">
+                    <!-- BUG 13: Image without alt -->
+                    <img src="user1.jpg" class="avatar">
+                    <h3>John Doe</h3>
+                    <!-- BUG 14: Invalid time format -->
+                    <time datetime="invalid-date">2 hours ago</time>
+                </div>
+                <!-- BUG 15: Missing closing p tag -->
+                <p>Just had an amazing day at the beach!
+                <!-- BUG 16: Image without proper attributes -->
+                <img src="beach.jpg" class="post-image">
+                
+                <div class="actions">
+                    <!-- BUG 17: Button without accessible text -->
+                    <button onclick="like(1)">👍</button>
+                    <!-- BUG 18: Invalid onclick syntax -->
+                    <button onclick="comment();">💬</button>
+                    <button onclick="share(1)">🔄</button>
+                </div>
+            </div>
+            
+            <!-- BUG 19: Unclosed div -->
+            <div class="post">
+                <div class="user-info">
+                    <img src="user2.jpg" alt="Jane Smith" class="avatar">
+                    <h3>Jane Smith</h3>
+                    <time datetime="2024-01-15T10:30:00">1 day ago</time>
+                </div>
+                <p>Check out this cool website I found!</p>
+                <!-- BUG 20: Link without proper attributes -->
+                <a>Click here</a>
+                
+                <!-- BUG 21: Missing form validation -->
+                <form class="comment-form">
+                    <input type="text" placeholder="Write a comment...">
+                    <button type="submit">Comment</button>
+                </form>
+        </section>
+        
+        <!-- BUG 22: Table without proper structure -->
+        <table class="user-stats">
+            <tr>
+                <td>Posts</td>
+                <td>125</td>
+            </tr>
+            <tr>
+                <td>Followers</td>
+                <td>1.2K</td>
+            </tr>
+        </table>
+    </main>
+    
+    <!-- BUG 23: Missing aside or section wrapper -->
+    <div class="sidebar">
+        <h3>Trending Topics</h3>
+        <!-- BUG 24: List without proper structure -->
+        <p>#technology</p>
+        <p>#travel</p>
+        <p>#food</p>
+    </div>
+    
+    <footer>
+        <!-- BUG 25: Missing contact information structure -->
+        <p>Contact: support@socialbug.com | Privacy | Terms</p>
+    </footer>
+    
+    <!-- BUG 26: Script without type -->
+    <script>
+        // BUG 27: Global variable pollution
+        var currentUser = 'user123';
+        
+        // BUG 28: Function without proper error handling
+        function like(postId) {
+            likes[postId]++;
+            // BUG 29: Direct DOM manipulation without checks
+            document.getElementById('like-count-' + postId).innerHTML = likes[postId];
+        }
+        
+        // BUG 30: Missing function definition for comment()
+        // comment() function is called but not defined
+    </script>
+</body>
+</html>

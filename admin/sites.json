@@ -2,22 +2,22 @@
 {
   "1": {
     "name": "E-commerce Site",
-    "url": "https://example.com/ecommerce-bugs"
+    "url": "https://htmlcodex.com/ecommerce-template"
   },
   "2": {
     "name": "Social Media Platform", 
-    "url": "https://example.com/social-bugs"
+    "url": "https://htmlcodex.com/social-template"
   },
   "3": {
     "name": "Banking Portal",
-    "url": "https://example.com/banking-bugs"
+    "url": "https://htmlcodex.com/banking-template"
   },
   "4": {
     "name": "News Website",
-    "url": "https://example.com/news-bugs"
+    "url": "https://htmlcodex.com/news-template"
   },
   "5": {
     "name": "Online Learning",
-    "url": "https://example.com/learning-bugs"
+    "url": "https://htmlcodex.com/learning-template"
   }
 }

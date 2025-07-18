@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ShopBug - E-commerce Site</title>
+    <meta charset="utf-8">
+    <!-- BUG 1: Missing viewport meta tag -->
+    <link rel="stylesheet" href="style.css">
+    <!-- BUG 2: Missing type attribute for stylesheet -->
+    <script src="cart.js"></script>
+    <!-- BUG 3: Script in head without defer/async -->
+</head>
+<body>
+    <!-- BUG 4: Missing lang attribute on html tag -->
+    <header>
+        <h1>ShopBug Store</h1>
+        <!-- BUG 5: Missing alt attribute -->
+        <img src="logo.png" width="100">
+        <nav>
+            <!-- BUG 6: href="javascript:void(0)" bad practice -->
+            <a href="javascript:void(0)">Home</a>
+            <!-- BUG 7: Missing href attribute -->
+            <a>Products</a>
+            <!-- BUG 8: Broken link -->
+            <a href="contact.html">Contact</a>
+        </nav>
+    </header>
+    
+    <main>
+        <!-- BUG 9: Missing for attribute on label -->
+        <label>Search Products:</label>
+        <!-- BUG 10: Input without id -->
+        <input type="text" placeholder="Enter product name">
+        
+        <section class="products">
+            <!-- BUG 11: Unclosed div tag -->
+            <div class="product">
+                <!-- BUG 12: Image without alt -->
+                <img src="product1.jpg">
+                <h3>Laptop</h3>
+                <p>$999</p>
+                <!-- BUG 13: Button without type -->
+                <button onclick="addToCart()">Add to Cart</button>
+            </div>
+            
+            <div class="product">
+                <!-- BUG 14: Broken image source -->
+                <img src="missing-image.jpg" alt="Phone">
+                <h3>Phone</h3>
+                <!-- BUG 15: Missing closing tag -->
+                <p>$699
+                <button type="button" onclick="addToCart(2)">Add to Cart</button>
+            </div>
+        </section>
+        
+        <!-- BUG 16: Form without action -->
+        <form method="post">
+            <h3>Newsletter</h3>
+            <!-- BUG 17: Input without name attribute -->
+            <input type="email" placeholder="Your email" required>
+            <!-- BUG 18: Submit button outside form scope issue -->
+        </form>
+        <button type="submit">Subscribe</button>
+        
+        <!-- BUG 19: Deprecated center tag -->
+        <center>
+            <p>Follow us on social media!</p>
+        </center>
+        
+        <!-- BUG 20: Missing table headers -->
+        <table>
+            <tr>
+                <td>Product</td>
+                <td>Price</td>
+                <td>Stock</td>
+            </tr>
+            <tr>
+                <td>Laptop</td>
+                <td>$999</td>
+                <td>5</td>
+            </tr>
+        </table>
+    </main>
+    
+    <footer>
+        <!-- BUG 21: Invalid nested anchor tags -->
+        <a href="/">
+            <a href="/privacy">Privacy Policy</a>
+        </a>
+        <!-- BUG 22: Missing closing div from line ~20 -->
+        <p>&copy; 2024 ShopBug Store</p>
+    </footer>
+    
+    <!-- BUG 23: Inline CSS in HTML -->
+    <style>
+        body { margin: 0; }
+    </style>
+    
+    <!-- BUG 24: Script tag without proper closing -->
+    <script>
+        // BUG 25: Missing semicolon
+        var cart = []
+        
+        // BUG 26: Function not properly defined
+        function addToCart() {
+            // BUG 27: Undefined variable
+            cart.push(item);
+            // BUG 28: Console.log instead of proper error handling
+            console.log("Added to cart");
+        }
+        
+        // BUG 29: Missing function closing brace
+        function checkout() {
+            if (cart.length > 0) {
+                alert("Checkout successful!");
+        
+        // BUG 30: Document.write usage (bad practice)
+        document.write("<p>Cart updated</p>");
+    </script>
+</body>
+</html>
