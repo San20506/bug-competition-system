@@ -1,27 +1,11 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Bug Fix Submission</title>
-    <style>
-        body { font-family: Arial; margin: 20px; }
-        .timer { font-size: 24px; color: #ff6b35; font-weight: bold; margin: 10px 0; }
-        .timer.expired { color: #ff0000; }
-        .form-section { margin: 20px 0; }
-        button { padding: 10px 20px; font-size: 16px; }
-        .upload-help { color: #666; font-size: 14px; margin-top: 10px; }
-        .nav-links { margin: 20px 0; }
-        .nav-links a { margin-right: 15px; text-decoration: none; color: #007bff; }
-        .nav-links a:hover { text-decoration: underline; }
-        .upload-instructions { 
-            background: #f8f9fa; 
-            padding: 15px; 
-            border-radius: 5px; 
-            margin-top: 15px;
-        }
-        .upload-instructions ol { margin: 10px 0; }
-        .upload-instructions li { margin: 5px 0; }
-        .upload-instructions a { color: #007bff; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug Fix Challenge</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script>
         let remainingTime = {{ remaining }};
         let timerActive = {{ 'true' if timer_active else 'false' }};
@@ -41,7 +25,7 @@
             const seconds = remainingTime % 60;
             const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-            timerElement.innerHTML = `⏳ Time Remaining: ${formattedTime}`;
+            timerElement.innerHTML = `⏳ ${formattedTime}`;
             remainingTime--;
         }
 
@@ -56,30 +40,56 @@
     </script>
 </head>
 <body>
-    <h2>🛠️ Bug Fix Challenge</h2>
-    <p>Welcome, <strong>{{ session.team }}</strong>! <a href="/logout">Logout</a></p>
-
-    {% if error %}
-        <p style="color:red;">{{ error }}</p>
-    {% endif %}
-
-    {% if timer_active %}
-        <div id="timer" class="timer">⏳ Time Remaining: Loading...</div>
-
-        <div class="form-section">
-            <h3>📁 Submit Your Fix</h3>
-            <form method="POST" enctype="multipart/form-data">
-                <input type="file" name="zipfile" accept=".zip" required><br><br>
-                <button id="submit-btn" type="submit">Submit Fix</button>
-            </form>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div class="dashboard-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                    <h1 class="dashboard-title">🛠️ Bug Fix Challenge</h1>
+                    <div style="color: rgba(255,255,255,0.9);">
+                        Welcome, <strong>{{ session.team }}</strong>! 
+                        <a href="/logout" style="color: white; margin-left: 15px; text-decoration: none; padding: 8px 16px; background: rgba(255,255,255,0.2); border-radius: 20px; transition: all 0.3s ease;">Logout</a>
+                    </div>
+                </div>
+            </div>
         </div>
-    {% else %}
-        <div class="timer expired">⏱️ Submissions are currently closed.</div>
-    {% endif %}
 
-    <div class="nav-links">
-        <a href="/bug">🐛 View Bug Site (QR Code)</a>
-        <a href="/leaderboard">📊 View Leaderboard</a>
+        <div class="dashboard-content">
+            {% if error %}
+                <div class="error-message" style="background: rgba(255, 107, 107, 0.2); border: 1px solid rgba(255, 107, 107, 0.3); border-radius: 15px; color: #ff6b6b; padding: 20px; margin-bottom: 30px;">
+                    ⚠️ {{ error }}
+                </div>
+            {% endif %}
+
+            {% if timer_active %}
+                <div class="timer-section">
+                    <div id="timer" class="timer">⏳ Loading...</div>
+                    <p style="color: rgba(255,255,255,0.8); font-size: 1.1rem;">Time Remaining</p>
+                </div>
+
+                <div class="upload-section">
+                    <h3 class="section-title">📁 Submit Your Fix</h3>
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="file-upload">
+                            <p style="margin-bottom: 15px; color: #718096; font-size: 1.1rem;">📎 Select your ZIP file</p>
+                            <input type="file" name="zipfile" accept=".zip" required>
+                        </div>
+                        <button id="submit-btn" type="submit" class="btn-modern btn-success" style="width: 100%; padding: 20px; font-size: 1.1rem;">
+                            🚀 Submit Fix
+                        </button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="timer-section">
+                    <div class="timer expired">⏱️ Submissions Closed</div>
+                    <p style="color: rgba(255,255,255,0.8); font-size: 1.1rem;">The challenge period has ended</p>
+                </div>
+            {% endif %}
+
+            <div class="nav-links">
+                <a href="/bug">🐛 View Bug Site</a>
+                <a href="/leaderboard">📊 Leaderboard</a>
+            </div>
+        </div>
     </div>
 </body>
 </html>

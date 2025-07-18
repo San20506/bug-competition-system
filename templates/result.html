@@ -1,15 +1,45 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Submission Result</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submission Result - Bug Bounty</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h2>🎯 Submission Result</h2>
-    <p><strong>Team:</strong> {{ name }}</p>
-    <p><strong>Score:</strong> {{ score }} points</p>
-    <p><strong>Time Taken:</strong> {{ time_taken }}</p>
+    <div class="result-container">
+        <div class="result-card">
+            <h1 class="result-title">🎯 Submission Result</h1>
+            
+            <div class="result-detail">
+                <strong>Team:</strong>
+                <div>
+                    <span>{{ name }}</span>
+                </div>
+            </div>
+            
+            <div class="result-detail">
+                <strong>Score:</strong>
+                <div>
+                    <span>{{ score }} points</span>
+                </div>
+            </div>
+            
+            <div class="result-detail">
+                <strong>Time Taken:</strong>
+                <div>
+                    <span>{{ time_taken }}</span>
+                </div>
+            </div>
 
-    <br>
-    <a href="/">⬅ Back to Home</a> | <a href="/leaderboard">📊 View Leaderboard</a>
+            <div style="margin-top: 40px;">
+                <div class="nav-links" style="justify-content: center;">
+                    <a href="/">⬅ Back to Home</a>
+                    <a href="/leaderboard">📊 View Leaderboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
