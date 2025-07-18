@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Scores</title>
+</head>
+<body>
+    <h2>✏ Edit Scores</h2>
+
+    {% if msg %}
+        <p style="color:green;">{{ msg }}</p>
+    {% endif %}
+
+    <form method="POST">
+        <input type="password" name="password" placeholder="Admin Password" required><br><br>
+        <table border="1" cellpadding="10">
+            <tr>
+                <th>Team</th>
+                <th>Score</th>
+                <th>Time</th>
+            </tr>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row[1] }}</td>
+                <td><input type="number" name="score_{{ row[0] }}" value="{{ row[2] }}"></td>
+                <td><input type="text" name="duration_{{ row[0] }}" value="{{ row[3] }}"></td>
+            </tr>
+            {% endfor %}
+        </table><br>
+        <button type="submit">💾 Save Changes</button>
+    </form>
+
+    <br>
+    <a href="/admin">← Back to Admin</a>
+</body>
+</html>

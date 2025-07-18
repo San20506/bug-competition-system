@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bug Fix Submission</title>
+</head>
+<body>
+    <h2>🛠️ Bug Fix Challenge</h2>
+
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+
+    {% if timer_active %}
+        <p>⏳ Time Remaining: {{ remaining }} seconds</p>
+
+        <form method="POST" enctype="multipart/form-data">
+            <input type="text" name="username" placeholder="Team Name" required><br><br>
+            <input type="file" name="zipfile" accept=".zip" required><br><br>
+            <button type="submit">Submit Fix</button>
+        </form>
+    {% else %}
+        <p style="color:gray;">⏱️ Submissions are currently closed.</p>
+    {% endif %}
+</body>
+</html>

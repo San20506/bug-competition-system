@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+</head>
+<body>
+    <h2>🛡️ Admin Panel</h2>
+
+    {% if msg %}
+        <p>{{ msg }}</p>
+    {% endif %}
+
+    <form method="POST">
+        <input type="password" name="password" placeholder="Admin Password" required><br><br>
+        <input type="number" name="duration" placeholder="Duration (minutes)"><br><br>
+
+        <button type="submit" name="action" value="start">▶ Start Timer</button>
+        <button type="submit" name="action" value="stop">⏹ Stop Timer</button>
+        <button type="submit" name="action" value="reset">🗑 Reset Scores</button>
+    </form>
+
+    <br>
+    <a href="/admin/scores">✏ Edit Scores</a><br>
+    <a href="/admin/teams">👥 Manage Teams</a><br>
+    <a href="/leaderboard">📊 View Leaderboard</a>
+</body>
+</html>

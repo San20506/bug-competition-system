@@ -1,0 +1,171 @@
+🧠 Project Title: Bug Bounty Challenge Platform (Team Submissions + Admin Controls)
+
+🎯 Purpose:
+A web platform to conduct a timed bug-fix competition where:
+
+Teams upload ZIP files with their fixes.
+
+A script (check_all_fixes) evaluates their submission and gives a score.
+
+Admin controls the event timer, teams, and scores from a dashboard.
+
+The leaderboard ranks teams by score and time taken.
+
+👥 Users:
+
+Admin (login required):
+
+Start/stop/reset the event timer.
+
+Add/delete teams.
+
+Bulk import teams via .txt.
+
+View/edit scores and time for each team.
+
+Reset database between rounds.
+
+View real-time leaderboard.
+
+Team Participants (team login, no password):
+
+Log in using only the team name.
+
+Upload ZIP files during the event.
+
+View score + time taken after submission.
+
+View public leaderboard.
+
+📦 Features Summary:
+
+Flask-based web app
+
+SQLite database
+
+File upload (ZIP)
+
+Timer system (controlled by admin)
+
+Score calculator using check_all_fixes(upload_folder)
+
+Real-time leaderboard
+
+Admin-only dashboard
+
+Session-based authentication (not token-based)
+
+🗃️ Data Structure (SQLite):
+tables:
+
+teams(name TEXT PRIMARY KEY)
+
+scores(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, score INTEGER, duration INTEGER)
+
+🗂️ File Structure:
+
+bash
+Copy
+Edit
+project_root/
+│
+├── main.py                 # Flask app
+├── bug_rules.py            # contains check_all_fixes(upload_folder)
+├── reset_db.py             # script to wipe/rebuild database
+├── database.db             # SQLite DB
+├── /uploads/               # temp extracted ZIP folder
+├── /admin/status.json      # timer status {status, start_time, duration}
+├── /templates/             # HTML pages (Jinja2)
+│   ├── login.html
+│   ├── index.html
+│   ├── result.html
+│   ├── leaderboard.html
+│   └── dashboard.html
+└── /static/                # (optional) CSS/JS
+⏱️ Timer System:
+
+Admin starts timer with a duration (in minutes).
+
+Stored in admin/status.json.
+
+Team uploads are only accepted while timer is running.
+
+Time is recorded as: (duration * 60 - remaining seconds at submission)
+
+📜 Admin Dashboard Actions:
+
+Start Timer
+
+Stop Timer
+
+Reset Timer
+
+Add Team
+
+Delete Team
+
+Bulk Import Teams
+
+Edit Scores & Time
+
+Reset Database
+
+📥 Team Upload Flow:
+
+Team logs in with name
+
+Sees timer + upload form
+
+Uploads .zip
+
+Server extracts ZIP → runs check_all_fixes → gets score
+
+Time is calculated and stored
+
+Score + time saved to scores table
+
+🏆 Leaderboard Rules:
+
+Sort by:
+
+Highest score
+
+Shortest time (if same score)
+
+🧼 Database Reset (reset_db.py):
+
+python
+Copy
+Edit
+import sqlite3
+
+conn = sqlite3.connect('database.db')
+c = conn.cursor()
+c.execute("DROP TABLE IF EXISTS teams")
+c.execute("DROP TABLE IF EXISTS scores")
+
+c.execute("CREATE TABLE teams (name TEXT PRIMARY KEY)")
+c.execute("CREATE TABLE scores (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, score INTEGER, duration INTEGER)")
+conn.commit()
+conn.close()
+📌 Requirements:
+
+Flask
+
+SQLite3
+
+Jinja2 templating
+
+Optional: Bootstrap for UI
+
+📍Extra Tips to the AI:
+
+Keep code modular.
+
+Avoid requiring password again after admin logs in.
+
+Show error messages clearly in UI.
+
+Use session to track admin/team status.
+
+Keep check_all_fixes() abstract — assume it returns score:int.

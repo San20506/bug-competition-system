@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        input, button, select { padding: 5px; margin: 5px; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        .section { border: 1px solid #aaa; padding: 15px; margin-bottom: 30px; border-radius: 5px; }
+        .success { color: green; }
+    </style>
+    <script>
+        setInterval(() => { document.getElementById('live-frame').src = "/leaderboard?ts=" + new Date().getTime(); }, 10000);
+    </script>
+</head>
+<body>
+
+<h2>📋 Admin Dashboard</h2>
+{% if msg %}<p class="success">{{ msg }}</p>{% endif %}
+
+<!-- TIMER SECTION -->
+<div class="section">
+    <h3>⏱ Timer Control</h3>
+    <form method="POST">
+        <input type="password" name="password" placeholder="Admin Password" required>
+        <input type="number" name="duration" placeholder="Minutes" value="{{ timer['duration'] }}">
+        <button name="action" value="start_timer">▶ Start</button>
+        <button name="action" value="stop_timer">⏹ Stop</button>
+    </form>
+    <p>🕓 Status: {{ timer['status'] }} | Started at: {{ timer['start_time'] }}</p>
+</div>
+
+<!-- SCORES -->
+<div class="section">
+    <h3>✏ Edit Scores</h3>
+    <form method="POST">
+        <input type="password" name="password" placeholder="Admin Password" required><br>
+        <input type="hidden" name="action" value="update_scores">
+        <table>
+            <tr><th>Team</th><th>Score</th><th>Time</th></tr>
+            {% for row in scores %}
+            <tr>
+                <td>{{ row[1] }}</td>
+                <td><input name="score_{{ row[0] }}" value="{{ row[2] }}"></td>
+                <td><input name="duration_{{ row[0] }}" value="{{ row[3] }}"></td>
+            </tr>
+            {% endfor %}
+        </table>
+        <button type="submit">💾 Save</button>
+    </form>
+</div>
+
+<!-- TEAM MANAGEMENT -->
+<div class="section">
+    <h3>👥 Manage Teams</h3>
+    <form method="POST">
+        <input type="password" name="password" placeholder="Admin Password" required>
+        <input type="text" name="teamname" placeholder="Team Name">
+        <button name="action" value="add_team">➕ Add</button>
+        <button name="action" value="delete_team">🗑 Delete</button>
+    </form>
+
+    <form method="POST" enctype="multipart/form-data">
+        <input type="password" name="password" placeholder="Admin Password" required>
+        <input type="file" name="file" accept=".txt,.csv">
+        <button name="action" value="bulk_teams">📥 Bulk Upload</button>
+    </form>
+
+    <ul>
+        {% for team in teams %}
+        <li>{{ team[0] }}</li>
+        {% endfor %}
+    </ul>
+</div>
+    
+<!-- Reset DB -->
+<div class="section">
+    <h3>🧨 Reset Database (New Round)</h3>
+    <form method="POST">
+        <input type="password" name="password" required>
+        <button name="action" value="reset_db" onclick="return confirm('Are you sure you want to erase ALL scores and teams?')">💥 Reset Everything</button>
+    </form>
+</div>
+
+<!-- LIVE LEADERBOARD -->
+<div class="section">
+    <h3>📊 Live Leaderboard</h3>
+    <iframe id="live-frame" src="/leaderboard" width="100%" height="300px" style="border:1px solid #ccc;"></iframe>
+</div>
+
+</body>
+</html>

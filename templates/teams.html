@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Team Whitelist Manager</title>
+  <style>
+    body { font-family: Arial; max-width: 700px; margin: auto; padding: 20px; }
+    input, button { padding: 10px; margin: 5px 0; width: 100%; }
+    form { margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
+    .msg { color: green; }
+    .delete-btn { background-color: #f44336; color: white; }
+    .edit-btn { background-color: #2196F3; color: white; }
+  </style>
+</head>
+<body>
+  <h2>🛡️ Team Whitelist Control Panel</h2>
+
+  {% if msg %}
+    <p class="msg">{{ msg }}</p>
+  {% endif %}
+
+  <!-- Add Team -->
+  <form method="POST">
+    <h3>➕ Add Team</h3>
+    <input type="password" name="password" required placeholder="Admin Password">
+    <input type="text" name="teamname" placeholder="Team Name" required>
+    <input type="hidden" name="action" value="add">
+    <button type="submit">Add Team</button>
+  </form>
+
+  <!-- Edit Team -->
+  <form method="POST">
+    <h3>✏️ Edit Team Name</h3>
+    <input type="password" name="password" required placeholder="Admin Password">
+    <input type="text" name="oldname" placeholder="Current Team Name" required>
+    <input type="text" name="teamname" placeholder="New Team Name" required>
+    <input type="hidden" name="action" value="edit">
+    <button class="edit-btn" type="submit">Rename Team</button>
+  </form>
+
+  <!-- Delete Team -->
+  <form method="POST">
+    <h3>🗑️ Delete Team</h3>
+    <input type="password" name="password" required placeholder="Admin Password">
+    <input type="text" name="teamname" placeholder="Team Name to Delete" required>
+    <input type="hidden" name="action" value="delete">
+    <button class="delete-btn" type="submit">Delete Team</button>
+  </form>
+
+  <!-- Bulk Import -->
+  <form method="POST" enctype="multipart/form-data">
+    <h3>📥 Bulk Import Teams</h3>
+    <input type="password" name="password" required placeholder="Admin Password">
+    <input type="file" name="file" accept=".txt,.csv" required>
+    <input type="hidden" name="action" value="bulk">
+    <button type="submit">Upload</button>
+  </form>
+
+  <h3>📋 Registered Teams</h3>
+  <ul>
+    {% for team in teams %}
+      <li>{{ team[0] }}</li>
+    {% endfor %}
+  </ul>
+
+  <br>
+  <a href="/admin">← Back to Admin</a>
+</body>
+</html>
