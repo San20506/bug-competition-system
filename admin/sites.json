@@ -1,23 +1,43 @@
 
 {
   "1": {
-    "name": "E-commerce Site",
-    "url": "https://htmlcodex.com/ecommerce-template"
+    "name": "E-commerce Store",
+    "type": "Shopping Platform",
+    "drive_link": "https://drive.google.com/drive/folders/1m8WA_0aAuQRq_vX39oSzeDCA46QxGZ48?usp=sharing",
+    "qr_path": "static/qr/site_1.png",
+    "bugs_count": 30,
+    "description": "Online store with cart functionality"
   },
   "2": {
-    "name": "Social Media Platform", 
-    "url": "https://htmlcodex.com/social-template"
+    "name": "Social Media Platform",
+    "type": "Social Network",
+    "drive_link": "https://drive.google.com/drive/folders/1m8WA_0aAuQRq_vX39oSzeDCA46QxGZ48?usp=sharing",
+    "qr_path": "static/qr/site_2.png",
+    "bugs_count": 30,
+    "description": "Social networking site with user profiles and feeds"
   },
   "3": {
     "name": "Banking Portal",
-    "url": "https://htmlcodex.com/banking-template"
+    "type": "Financial Services",
+    "drive_link": "https://drive.google.com/drive/folders/1m8WA_0aAuQRq_vX39oSzeDCA46QxGZ48?usp=sharing",
+    "qr_path": "static/qr/site_3.png",
+    "bugs_count": 30,
+    "description": "Secure banking interface with login and transactions"
   },
   "4": {
     "name": "News Website",
-    "url": "https://htmlcodex.com/news-template"
+    "type": "Media/Publishing",
+    "drive_link": "https://drive.google.com/drive/folders/1m8WA_0aAuQRq_vX39oSzeDCA46QxGZ48?usp=sharing",
+    "qr_path": "static/qr/site_4.png",
+    "bugs_count": 30,
+    "description": "News portal with articles and search functionality"
   },
   "5": {
-    "name": "Online Learning",
-    "url": "https://htmlcodex.com/learning-template"
+    "name": "Online Learning Platform",
+    "type": "Education",
+    "drive_link": "https://drive.google.com/drive/folders/1m8WA_0aAuQRq_vX39oSzeDCA46QxGZ48?usp=sharing",
+    "qr_path": "static/qr/site_5.png",
+    "bugs_count": 30,
+    "description": "Educational platform with courses and quizzes"
   }
 }

@@ -1,74 +1,248 @@
-The code adds download and file viewing options to the bug site, including styling for the new elements.
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>{{ site_name }} - Bug Site</title>
     <style>
-        body { font-family: Arial; margin: 20px; text-align: center; }
-        .qr-container { margin: 20px auto; max-width: 400px; }
-        .qr-code { border: 2px solid #ccc; padding: 20px; }
-        .url-link { font-size: 18px; margin: 20px 0; }
-        .url-link a { color: #007bff; text-decoration: none; }
-        .url-link a:hover { text-decoration: underline; }
-        .site-info { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
-        .qr-help { color: #666; font-size: 14px; margin-top: 10px; }
-        .nav-links { margin: 20px 0; }
-        .nav-links a { margin-right: 15px; text-decoration: none; color: #007bff; }
-        .nav-links a:hover { text-decoration: underline; }
-        .file-actions { margin: 15px 0; }
-        .download-btn { 
-            display: inline-block; 
-            background: #28a745; 
-            color: white; 
-            padding: 12px 20px; 
-            text-decoration: none; 
-            border-radius: 5px; 
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h2 {
+            margin: 0;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .content {
+            padding: 30px;
+        }
+        .site-info {
+            background: #f8f9fa;
+            border-left: 5px solid #007bff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .site-info h3 {
+            margin-top: 0;
+            color: #007bff;
+            font-size: 1.5em;
+        }
+        .site-info p {
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+        .badge {
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .qr-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+            padding: 20px;
+            background: #ffffff;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+        }
+        .qr-code {
+            text-align: center;
+        }
+        .qr-code img {
+            max-width: 200px;
+            border: 3px solid #007bff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+        }
+        .qr-code h4 {
+            color: #007bff;
             margin-bottom: 15px;
         }
-        .download-btn:hover { background: #218838; }
-        .file-list { 
-            background: #f8f9fa; 
-            padding: 15px; 
-            border-radius: 5px; 
-            margin: 10px 0;
+        .drive-info {
+            padding: 20px;
         }
-        .file-list ul { list-style-type: none; padding: 0; }
-        .file-list li { margin: 5px 0; }
-        .file-list a { color: #007bff; text-decoration: none; }
-        .file-list a:hover { text-decoration: underline; }
-        .instructions { 
-            background: #e7f3ff; 
-            padding: 15px; 
-            border-radius: 5px; 
-            margin-top: 15px;
+        .drive-info h4 {
+            color: #28a745;
+            margin-bottom: 15px;
         }
-        .instructions ol { margin: 10px 0; }
-        .instructions li { margin: 5px 0; }
+        .drive-link {
+            background: #e8f5e8;
+            border: 1px solid #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            word-break: break-all;
+        }
+        .drive-link a {
+            color: #28a745;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .drive-link a:hover {
+            text-decoration: underline;
+        }
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .instructions h4 {
+            color: #856404;
+            margin-top: 0;
+        }
+        .instructions ol {
+            color: #856404;
+            line-height: 1.6;
+        }
+        .instructions li {
+            margin: 8px 0;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: #212529;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #dee2e6;
+        }
+        .warning {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        @media (max-width: 768px) {
+            .qr-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
-    <h2>🐛 Your Assigned Bug Site</h2>
-
-    <div class="site-info">
-        <h3>{{ site_name }}</h3>
-        <p><strong>Site ID:</strong> {{ site_id }}</p>
-        <p>🎯 This is your team's assigned site. Only submit fixes for this site!</p>
-    </div>
-
-    <div class="qr-container">
-        <div class="qr-code">
-            <img src="/static/qr/site_{{ site_id }}.png" alt="Bug Site QR Code" style="max-width: 100%;">
+    <div class="container">
+        <div class="header">
+            <h2>🐛 Your Assigned Bug Site</h2>
+            <p>Find and fix the bugs to score points!</p>
         </div>
 
-        <div class="url-link">
-            <p><strong>Direct Link:</strong></p>
-            <a href="{{ bug_url }}" target="_blank">{{ bug_url }}</a>
+        <div class="content">
+            <div class="site-info">
+                <h3>{{ site_name }}</h3>
+                <p><strong>Site ID:</strong> <span class="badge">{{ site_id }}</span></p>
+                <p><strong>Type:</strong> {{ site_info.get('type', 'Web Application') }}</p>
+                <p><strong>Description:</strong> {{ site_info.get('description', 'Bug hunting challenge site') }}</p>
+                <div class="warning">
+                    <strong>⚠️ Important:</strong> This is your team's assigned site. Only submit fixes for this site!
+                </div>
+            </div>
+
+            <div class="qr-container">
+                <div class="qr-code">
+                    <h4>📱 QR Code</h4>
+                    <img src="/{{ qr_path }}" alt="Bug Site QR Code">
+                    <p><small>Scan with your phone</small></p>
+                </div>
+
+                <div class="drive-info">
+                    <h4>🔗 Google Drive Access</h4>
+                    <div class="drive-link">
+                        <p><strong>Direct Link:</strong></p>
+                        <a href="{{ bug_url }}" target="_blank">Open Google Drive Folder</a>
+                    </div>
+                    <p><small>Download files, edit them, and upload your fixes</small></p>
+                </div>
+            </div>
+
+            <div class="instructions">
+                <h4>📋 How to Complete the Challenge</h4>
+                <ol>
+                    <li><strong>Access Files:</strong> Scan the QR code or click the Google Drive link above</li>
+                    <li><strong>Download:</strong> Download all files from your assigned Google Drive folder</li>
+                    <li><strong>Find Bugs:</strong> Look for HTML, CSS, and JavaScript issues ({{ site_info.get('bugs_count', 30) }} bugs total)</li>
+                    <li><strong>Fix Issues:</strong> Correct accessibility problems, broken links, missing attributes, etc.</li>
+                    <li><strong>Upload Fixes:</strong> Upload your corrected files back to the same Google Drive folder</li>
+                    <li><strong>Submit:</strong> Use the submission form on the main page to submit your work</li>
+                </ol>
+            </div>
+
+            <div class="action-buttons">
+                <a href="{{ bug_url }}" target="_blank" class="btn btn-primary">
+                    🔗 Open Google Drive
+                </a>
+                <a href="/download_site/{{ site_id }}" class="btn btn-success">
+                    📥 Download Site Files
+                </a>
+                <a href="/" class="btn btn-warning">
+                    📤 Submit Your Work
+                </a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🏆 <a href="/leaderboard">View Leaderboard</a> | ⬅ <a href="/">Back to Home</a></p>
+            <p><small>Good luck finding and fixing all the bugs! 🐛➡️✅</small></p>
         </div>
     </div>
-
-    <p>📱 Scan the QR code or click the link to access your buggy website</p>
-
-    <br>
-    <a href="/">⬅ Back to Home</a>
 </body>
 </html>

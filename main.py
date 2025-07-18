@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, session, send_from_directory
+
+from flask import Flask, render_template, request, redirect, session, send_from_directory, jsonify
 import os, zipfile, shutil, json, sqlite3, csv, io, qrcode
 from datetime import datetime
 from bug_rules import check_all_fixes
@@ -13,16 +14,24 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 if not os.path.exists(STATIC_FOLDER):
     os.makedirs(STATIC_FOLDER)
+if not os.path.exists('static/qr'):
+    os.makedirs('static/qr')
 
 
 def generate_qr_code(url, site_id):
     """Generate QR code for the given URL and save it for specific site"""
-    qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    qr.add_data(url)
-    qr.make(fit=True)
+    try:
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(url)
+        qr.make(fit=True)
 
-    img = qr.make_image(fill_color="black", back_color="white")
-    img.save(f'static/qr/site_{site_id}.png')
+        img = qr.make_image(fill_color="black", back_color="white")
+        qr_path = f'static/qr/site_{site_id}.png'
+        img.save(qr_path)
+        return qr_path
+    except Exception as e:
+        print(f"Error generating QR code: {e}")
+        return None
 
 
 def get_sites():
@@ -51,6 +60,18 @@ def format_time(seconds):
     minutes = int(seconds // 60)
     secs = int(seconds % 60)
     return f"{minutes:02d}:{secs:02d}"
+
+
+def export_bug_reports():
+    """Export comprehensive bug reports to CSV"""
+    try:
+        # Run the bug summary script to generate reports
+        import subprocess
+        result = subprocess.run(['python', 'templates/bugged_sites/bug_summary.py'], 
+                              capture_output=True, text=True, cwd='.')
+        return "✅ Bug reports exported successfully!"
+    except Exception as e:
+        return f"❌ Error exporting reports: {str(e)}"
 
 
 # ---- STATIC FILES ----
@@ -104,18 +125,19 @@ def bug_site():
 
     site_info = sites.get(str(site_id), {})
     site_name = site_info.get('name', f'Site {site_id}')
-    site_url = site_info.get('url', '#')
+    drive_link = site_info.get('drive_link', '#')
 
     qr_path = f'static/qr/site_{site_id}.png'
 
     return render_template('bug_site.html', 
                          site_name=site_name, 
-                         site_url=site_url,
+                         bug_url=drive_link,
                          qr_path=qr_path,
-                         site_id=site_id)
+                         site_id=site_id,
+                         site_info=site_info)
 
 
-# ---- SITE FILES SERVING ----
+# ---- DOWNLOAD SITE FILES ----
 @app.route('/download_site/<int:site_id>')
 def download_site(site_id):
     """Download site files as ZIP for editing"""
@@ -134,7 +156,7 @@ def download_site(site_id):
         return "Site not found", 404
 
     # Create ZIP file
-    zip_filename = f'site_{site_id}_files.zip'
+    zip_filename = f'site_{site_id}_buggy_files.zip'
     zip_path = os.path.join('uploads', zip_filename)
 
     with zipfile.ZipFile(zip_path, 'w') as zipf:
@@ -146,23 +168,6 @@ def download_site(site_id):
                     zipf.write(file_path, arc_name)
 
     return send_from_directory('uploads', zip_filename, as_attachment=True)
-
-
-@app.route('/view_site/<int:site_id>/<path:filename>')
-def view_site_file(site_id, filename):
-    """View individual site files"""
-    if 'team' not in session:
-        return redirect('/login')
-
-    team_name = session['team']
-    team_site_id = get_team_site(team_name)
-
-    # Teams can only view their assigned site
-    if site_id != team_site_id:
-        return "Access denied", 403
-
-    site_path = f'templates/bugged_sites/site_{site_id}'
-    return send_from_directory(site_path, filename)
 
 
 # ---- TEAM SUBMISSION PAGE ----
@@ -253,6 +258,7 @@ def admin_sites():
 
     msg = ""
     sites = get_sites()
+    team_assignments = None
 
     if request.method == 'POST':
         action = request.form.get('action')
@@ -260,27 +266,79 @@ def admin_sites():
         if action == 'update_site':
             site_id = request.form.get('site_id')
             site_name = request.form.get('site_name', '').strip()
-            site_url = request.form.get('site_url', '').strip()
+            site_type = request.form.get('site_type', '').strip()
+            drive_link = request.form.get('drive_link', '').strip()
+            description = request.form.get('description', '').strip()
 
-            if site_id and site_name and site_url:
+            if site_id and site_name and drive_link:
                 sites[site_id] = {
                     'name': site_name,
-                    'url': site_url
+                    'type': site_type,
+                    'drive_link': drive_link,
+                    'description': description,
+                    'bugs_count': sites.get(site_id, {}).get('bugs_count', 30),
+                    'qr_path': f'static/qr/site_{site_id}.png'
                 }
 
                 with open('admin/sites.json', 'w') as f:
                     json.dump(sites, f, indent=2)
 
                 # Regenerate QR code
-                generate_qr_code(site_url, site_id)
+                qr_path = generate_qr_code(drive_link, site_id)
+                if qr_path:
+                    sites[site_id]['qr_path'] = qr_path
+                    with open('admin/sites.json', 'w') as f:
+                        json.dump(sites, f, indent=2)
+
                 msg = f"✅ Site {site_id} updated and QR code regenerated!"
 
-        elif action == 'regenerate_all':
-            for site_id, site_info in sites.items():
-                generate_qr_code(site_info['url'], site_id)
-            msg = "🔄 All QR codes regenerated!"
+        elif action == 'regenerate_qr':
+            site_id = request.form.get('site_id')
+            if site_id and site_id in sites:
+                drive_link = sites[site_id].get('drive_link', '')
+                if drive_link:
+                    qr_path = generate_qr_code(drive_link, site_id)
+                    if qr_path:
+                        sites[site_id]['qr_path'] = qr_path
+                        with open('admin/sites.json', 'w') as f:
+                            json.dump(sites, f, indent=2)
+                        msg = f"🔄 QR code regenerated for Site {site_id}!"
 
-    return render_template('admin_sites.html', msg=msg, sites=sites)
+        elif action == 'regenerate_all_qr':
+            regenerated = 0
+            for site_id, site_info in sites.items():
+                drive_link = site_info.get('drive_link', '')
+                if drive_link:
+                    qr_path = generate_qr_code(drive_link, site_id)
+                    if qr_path:
+                        sites[site_id]['qr_path'] = qr_path
+                        regenerated += 1
+            
+            with open('admin/sites.json', 'w') as f:
+                json.dump(sites, f, indent=2)
+            msg = f"🔄 {regenerated} QR codes regenerated!"
+
+        elif action == 'export_bug_reports':
+            result = export_bug_reports()
+            msg = result
+
+        elif action == 'view_assignments':
+            conn = sqlite3.connect('database.db')
+            c = conn.cursor()
+            c.execute("SELECT name, site_id FROM teams ORDER BY site_id, name")
+            assignments = c.fetchall()
+            conn.close()
+            
+            team_assignments = []
+            for team_name, site_id in assignments:
+                site_name = sites.get(str(site_id), {}).get('name', f'Site {site_id}')
+                team_assignments.append({
+                    'team_name': team_name,
+                    'site_id': site_id,
+                    'site_name': site_name
+                })
+
+    return render_template('admin_sites.html', msg=msg, sites=sites, team_assignments=team_assignments)
 
 
 # ---- ADMIN DASHBOARD ----

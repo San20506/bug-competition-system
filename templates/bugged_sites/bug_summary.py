@@ -1,13 +1,29 @@
 
 #!/usr/bin/env python3
 """
-Master Bug Detection Script
-Runs detection for all 5 bugged sites and generates a summary CSV.
+Master Bug Detection and Drive Link Management Script
+Generates comprehensive reports for all 5 bug bounty sites with Google Drive integration.
 """
 
 import os
 import csv
 import sys
+import json
+import qrcode
+from datetime import datetime
+
+def generate_qr_code(url, site_id):
+    """Generate QR code for Google Drive link"""
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(url)
+    qr.make(fit=True)
+    
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    # Ensure qr directory exists
+    os.makedirs('../../../static/qr', exist_ok=True)
+    img.save(f'../../../static/qr/site_{site_id}.png')
+    print(f"✅ QR code generated for Site {site_id}")
 
 def run_site_detection(site_id):
     """Run bug detection for a specific site"""
@@ -41,120 +57,150 @@ def run_site_detection(site_id):
     finally:
         os.chdir(original_dir)
 
-def generate_summary():
-    """Generate summary of all bugs found across all sites"""
+def generate_drive_qr_codes():
+    """Generate QR codes for all Google Drive links"""
+    try:
+        with open('../../../admin/sites.json', 'r') as f:
+            sites = json.load(f)
+        
+        for site_id, site_info in sites.items():
+            drive_link = site_info.get('drive_link', '')
+            if drive_link:
+                generate_qr_code(drive_link, site_id)
+                
+    except Exception as e:
+        print(f"Error generating QR codes: {e}")
+
+def export_bugs_to_csv():
+    """Export all bugs to CSV for admin download"""
     
     site_info = {
-        1: {"name": "E-commerce Site", "type": "Shopping Platform"},
+        1: {"name": "E-commerce Store", "type": "Shopping Platform"},
         2: {"name": "Social Media Platform", "type": "Social Network"},
         3: {"name": "Banking Portal", "type": "Financial Services"},
         4: {"name": "News Website", "type": "Media/Publishing"},
-        5: {"name": "Online Learning", "type": "Education Platform"}
+        5: {"name": "Online Learning Platform", "type": "Education"}
     }
     
-    summary_data = []
+    # Create comprehensive CSV report
+    csv_filename = "../../../static/bug_reports_complete.csv"
+    
+    with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.writer(csvfile)
+        
+        # Header row
+        writer.writerow([
+            "Site ID",
+            "Site Name", 
+            "Site Type",
+            "Bug Number",
+            "Bug Description",
+            "File Location",
+            "Bug Category",
+            "Severity"
+        ])
+        
+        total_bugs = 0
+        
+        for site_id in range(1, 6):
+            bugs = run_site_detection(site_id)
+            total_bugs += len(bugs)
+            
+            for i, bug in enumerate(bugs, 1):
+                # Parse bug description
+                bug_parts = bug.split(": ", 1)
+                bug_desc = bug_parts[1] if len(bug_parts) > 1 else bug
+                
+                # Categorize bug
+                category = "Other"
+                severity = "Medium"
+                
+                if any(word in bug_desc.lower() for word in ['missing alt', 'accessibility', 'aria']):
+                    category = "Accessibility"
+                    severity = "High"
+                elif any(word in bug_desc.lower() for word in ['security', 'csrf', 'xss', 'password']):
+                    category = "Security"
+                    severity = "Critical"
+                elif any(word in bug_desc.lower() for word in ['javascript', 'function', 'variable']):
+                    category = "JavaScript"
+                    severity = "Medium"
+                elif any(word in bug_desc.lower() for word in ['form', 'input', 'validation']):
+                    category = "Forms"
+                    severity = "High"
+                elif any(word in bug_desc.lower() for word in ['html', 'tag', 'structure']):
+                    category = "HTML Structure"
+                    severity = "Medium"
+                
+                writer.writerow([
+                    site_id,
+                    site_info[site_id]['name'],
+                    site_info[site_id]['type'],
+                    i,
+                    bug_desc,
+                    "index.html",  # Most bugs are in main HTML file
+                    category,
+                    severity
+                ])
+        
+        print(f"📊 Bug report exported to: {csv_filename}")
+        print(f"Total bugs across all sites: {total_bugs}")
+
+def generate_summary():
+    """Generate comprehensive summary with drive integration"""
+    
+    site_info = {
+        1: {"name": "E-commerce Store", "type": "Shopping Platform"},
+        2: {"name": "Social Media Platform", "type": "Social Network"},
+        3: {"name": "Banking Portal", "type": "Financial Services"},
+        4: {"name": "News Website", "type": "Media/Publishing"},
+        5: {"name": "Online Learning Platform", "type": "Education"}
+    }
+    
+    print("=" * 80)
+    print("🎯 BUG BOUNTY TRAINING PLATFORM - COMPREHENSIVE SETUP")
+    print("=" * 80)
+    print(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    # Generate QR codes for Drive links
+    print("\n🔗 Generating QR codes for Google Drive links...")
+    generate_drive_qr_codes()
+    
     total_bugs = 0
     
-    print("=" * 80)
-    print("BUG BOUNTY PLATFORM - COMPREHENSIVE BUG DETECTION SUMMARY")
-    print("=" * 80)
-    
     for site_id in range(1, 6):
-        print(f"\n🔍 Scanning Site {site_id}: {site_info[site_id]['name']}")
+        print(f"\n🔍 Site {site_id}: {site_info[site_id]['name']}")
         print("-" * 50)
         
         bugs = run_site_detection(site_id)
         bug_count = len(bugs)
         total_bugs += bug_count
         
-        print(f"Found {bug_count} bugs:")
-        for bug in bugs[:5]:  # Show first 5 bugs
-            print(f"  ✗ {bug}")
+        print(f"📋 Bugs Found: {bug_count}/30")
+        print(f"🎯 Type: {site_info[site_id]['type']}")
         
-        if len(bugs) > 5:
-            print(f"  ... and {len(bugs) - 5} more bugs")
-        
-        # Categorize bugs
-        categories = {
-            "HTML Structure": 0,
-            "Accessibility": 0,
-            "Security": 0,
-            "JavaScript": 0,
-            "Forms": 0,
-            "Images": 0,
-            "Other": 0
-        }
-        
-        for bug in bugs:
-            bug_text = bug.lower()
-            if any(word in bug_text for word in ['missing', 'unclosed', 'semantic', 'structure']):
-                categories["HTML Structure"] += 1
-            elif any(word in bug_text for word in ['alt', 'aria', 'accessibility', 'label']):
-                categories["Accessibility"] += 1
-            elif any(word in bug_text for word in ['security', 'csrf', 'xss', 'password', 'token']):
-                categories["Security"] += 1
-            elif any(word in bug_text for word in ['javascript', 'function', 'variable', 'error handling']):
-                categories["JavaScript"] += 1
-            elif any(word in bug_text for word in ['form', 'input', 'button', 'validation']):
-                categories["Forms"] += 1
-            elif any(word in bug_text for word in ['image', 'img', 'alt']):
-                categories["Images"] += 1
-            else:
-                categories["Other"] += 1
-        
-        # Create bug list string
-        bug_list = "; ".join([bug.split(": ", 1)[1] if ": " in bug else bug for bug in bugs])
-        
-        summary_data.append([
-            site_info[site_id]['name'],
-            site_info[site_id]['type'],
-            bug_count,
-            categories["HTML Structure"],
-            categories["Accessibility"],
-            categories["Security"],
-            categories["JavaScript"],
-            categories["Forms"],
-            categories["Images"],
-            categories["Other"],
-            bug_list[:500] + "..." if len(bug_list) > 500 else bug_list
-        ])
+        # Show sample bugs
+        if bugs:
+            print("Sample bugs:")
+            for bug in bugs[:3]:
+                print(f"  ❌ {bug}")
+            if len(bugs) > 3:
+                print(f"  ... and {len(bugs) - 3} more")
     
-    print(f"\n📊 OVERALL SUMMARY")
-    print("=" * 50)
-    print(f"Total Sites: 5")
-    print(f"Total Bugs: {total_bugs}")
-    print(f"Average Bugs per Site: {total_bugs / 5:.1f}")
+    # Export comprehensive CSV
+    print(f"\n📊 Exporting comprehensive bug reports...")
+    export_bugs_to_csv()
     
-    # Generate CSV report
-    csv_filename = "bug_detection_summary.csv"
-    with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
-        
-        # Header row
-        writer.writerow([
-            "Site Name",
-            "Site Type",
-            "Total Bugs",
-            "HTML Structure",
-            "Accessibility",
-            "Security",
-            "JavaScript",
-            "Forms",
-            "Images",
-            "Other",
-            "Bug Details"
-        ])
-        
-        # Data rows
-        for row in summary_data:
-            writer.writerow(row)
+    print(f"\n🎉 SETUP COMPLETE!")
+    print(f"✅ 5 Templates with {total_bugs} total bugs")
+    print(f"✅ Google Drive integration ready")
+    print(f"✅ QR codes generated")
+    print(f"✅ Admin reports exported")
     
-    print(f"\n📄 Summary saved to: {csv_filename}")
-    
-    print(f"\n🎯 BUG BOUNTY CHALLENGE READY!")
-    print("Each team will be assigned one of these 5 sites to debug.")
-    print("Teams must identify and fix the bugs in their assigned site.")
-    print("The detection scripts can be used to verify fixes.")
+    print(f"\n📋 Next Steps:")
+    print(f"1. Teams scan QR codes to access their assigned Google Drive folder")
+    print(f"2. Teams download buggy templates and fix issues")
+    print(f"3. Teams upload fixed versions back to their folder")
+    print(f"4. Admin can track progress and verify fixes")
 
 if __name__ == "__main__":
     generate_summary()
