@@ -3,6 +3,48 @@
 <html>
 <head>
     <title>Bug Fix Submission</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .timer { font-size: 24px; color: #ff6b35; font-weight: bold; margin: 10px 0; }
+        .timer.expired { color: #ff0000; }
+        .form-section { margin: 20px 0; }
+        button { padding: 10px 20px; font-size: 16px; }
+        .nav-links { margin: 20px 0; }
+        .nav-links a { margin-right: 15px; text-decoration: none; color: #007bff; }
+        .nav-links a:hover { text-decoration: underline; }
+    </style>
+    <script>
+        let remainingTime = {{ remaining }};
+        let timerActive = {{ 'true' if timer_active else 'false' }};
+        
+        function updateTimer() {
+            const timerElement = document.getElementById('timer');
+            const submitButton = document.getElementById('submit-btn');
+            
+            if (remainingTime <= 0) {
+                timerElement.innerHTML = "⏰ Time's up!";
+                timerElement.className = "timer expired";
+                if (submitButton) submitButton.disabled = true;
+                return;
+            }
+            
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            timerElement.innerHTML = `⏳ Time Remaining: ${formattedTime}`;
+            remainingTime--;
+        }
+        
+        function startTimer() {
+            if (timerActive && remainingTime > 0) {
+                updateTimer();
+                setInterval(updateTimer, 1000);
+            }
+        }
+        
+        window.onload = startTimer;
+    </script>
 </head>
 <body>
     <h2>🛠️ Bug Fix Challenge</h2>
@@ -13,17 +55,22 @@
     {% endif %}
 
     {% if timer_active %}
-        <p>⏳ Time Remaining: {{ remaining }} seconds</p>
-
-        <form method="POST" enctype="multipart/form-data">
-            <input type="file" name="zipfile" accept=".zip" required><br><br>
-            <button type="submit">Submit Fix</button>
-        </form>
+        <div id="timer" class="timer">⏳ Time Remaining: Loading...</div>
+        
+        <div class="form-section">
+            <h3>📁 Submit Your Fix</h3>
+            <form method="POST" enctype="multipart/form-data">
+                <input type="file" name="zipfile" accept=".zip" required><br><br>
+                <button id="submit-btn" type="submit">Submit Fix</button>
+            </form>
+        </div>
     {% else %}
-        <p style="color:gray;">⏱️ Submissions are currently closed.</p>
+        <div class="timer expired">⏱️ Submissions are currently closed.</div>
     {% endif %}
 
-    <br>
-    <a href="/leaderboard">📊 View Leaderboard</a>
+    <div class="nav-links">
+        <a href="/bug">🐛 View Bug Site (QR Code)</a>
+        <a href="/leaderboard">📊 View Leaderboard</a>
+    </div>
 </body>
 </html>

@@ -1,6 +1,6 @@
 
-from flask import Flask, render_template, request, redirect, session
-import os, zipfile, shutil, json, sqlite3, csv, io
+from flask import Flask, render_template, request, redirect, session, send_from_directory
+import os, zipfile, shutil, json, sqlite3, csv, io, qrcode
 from datetime import datetime
 from bug_rules import check_all_fixes
 
@@ -9,8 +9,45 @@ app.secret_key = 'super-secret-key'
 ADMIN_PASS = 'admin'
 
 UPLOAD_FOLDER = 'uploads'
+STATIC_FOLDER = 'static'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+if not os.path.exists(STATIC_FOLDER):
+    os.makedirs(STATIC_FOLDER)
+
+
+def generate_qr_code(url):
+    """Generate QR code for the given URL and save it"""
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(url)
+    qr.make(fit=True)
+    
+    img = qr.make_image(fill_color="black", back_color="white")
+    img.save('static/bugsite_qr.png')
+
+
+def get_bug_url():
+    """Get the current bug site URL"""
+    try:
+        with open('admin/bug_url.txt', 'r') as f:
+            return f.read().strip()
+    except:
+        return "https://example.com/buggy-site"
+
+
+def format_time(seconds):
+    """Convert seconds to mm:ss format"""
+    if seconds <= 0:
+        return "00:00"
+    minutes = int(seconds // 60)
+    secs = int(seconds % 60)
+    return f"{minutes:02d}:{secs:02d}"
+
+
+# ---- STATIC FILES ----
+@app.route('/static/<filename>')
+def static_files(filename):
+    return send_from_directory('static', filename)
 
 
 # ---- LOGIN ROUTE ----
@@ -46,6 +83,18 @@ def logout():
     return redirect('/login')
 
 
+# ---- BUG SITE QR CODE (PUBLIC VIEW) ----
+@app.route('/bug')
+def bug_site():
+    bug_url = get_bug_url()
+    
+    # Generate QR code if it doesn't exist
+    if not os.path.exists('static/bugsite_qr.png'):
+        generate_qr_code(bug_url)
+    
+    return render_template('bug_site.html', bug_url=bug_url)
+
+
 # ---- TEAM SUBMISSION PAGE ----
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -67,7 +116,7 @@ def index():
 
     if request.method == 'POST':
         if not timer_active:
-            return render_template("index.html", error="Event is closed", timer_active=False)
+            return render_template("index.html", error="Event is closed", timer_active=False, remaining=0)
 
         if 'zipfile' not in request.files or request.files['zipfile'].filename == '':
             return render_template("index.html", error="No file provided", timer_active=True, remaining=remaining)
@@ -99,7 +148,7 @@ def index():
         conn.commit()
         conn.close()
 
-        return render_template("result.html", name=teamname, score=score, time_taken=time_taken)
+        return render_template("result.html", name=teamname, score=score, time_taken=format_time(time_taken))
 
     return render_template("index.html", timer_active=timer_active, remaining=remaining)
 
@@ -112,7 +161,34 @@ def leaderboard():
     c.execute("SELECT name, score, duration FROM scores ORDER BY score DESC, duration ASC")
     rows = c.fetchall()
     conn.close()
-    return render_template("leaderboard.html", rows=rows)
+    
+    # Format time for display
+    formatted_rows = []
+    for row in rows:
+        formatted_rows.append((row[0], row[1], format_time(row[2])))
+    
+    return render_template("leaderboard.html", rows=formatted_rows)
+
+
+# ---- ADMIN BUG QR MANAGEMENT ----
+@app.route('/admin/bug_qr', methods=['GET', 'POST'])
+def admin_bug_qr():
+    if 'admin' not in session:
+        return redirect('/login')
+    
+    msg = ""
+    bug_url = get_bug_url()
+    
+    if request.method == 'POST':
+        new_url = request.form.get('bug_url', '').strip()
+        if new_url:
+            with open('admin/bug_url.txt', 'w') as f:
+                f.write(new_url)
+            generate_qr_code(new_url)
+            msg = "✅ Bug site URL and QR code updated!"
+            bug_url = new_url
+    
+    return render_template('admin_bug_qr.html', msg=msg, bug_url=bug_url)
 
 
 # ---- ADMIN DASHBOARD ----
@@ -233,4 +309,4 @@ def admin_dashboard():
 
 # ---- RUN SERVER ----
 if __name__ == '__main__':
-    app.run(debug=True, port=81)
+    app.run(debug=True, host='0.0.0.0', port=81)

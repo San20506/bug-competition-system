@@ -28,7 +28,13 @@ CREATE TABLE scores (
 )
 """)
 
-# Insert example teams for testing
+# Insert example teams for testing (as mentioned in requirements)
+c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("TeamAlpha", "alpha123"))
+c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("BugSquashers", "squash404"))
+c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("ErrorHunters", "error007"))
+c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("NullPointers", "nullnull"))
+
+# Keep original test teams too
 c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("alpha", "bug123"))
 c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("beta", "fix456"))
 c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", ("gamma", "patch789"))
