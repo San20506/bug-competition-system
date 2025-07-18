@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,9 +10,19 @@
         <p style="color: red;">{{ error }}</p>
     {% endif %}
     <form method="POST">
-        <input type="text" name="username" placeholder="Team name " required><br><br>
-        <input type="password" name="password" placeholder="Password"><br><br>
+        <input type="text" name="username" placeholder="Team name or 'admin'" required><br><br>
+        <input type="password" name="password" placeholder="Password" required><br><br>
         <button type="submit">Login</button>
     </form>
+    
+    <hr>
+    <h3>🧪 Test Credentials</h3>
+    <p><strong>Teams:</strong></p>
+    <ul>
+        <li>alpha / bug123</li>
+        <li>beta / fix456</li>
+        <li>gamma / patch789</li>
+    </ul>
+    <p><strong>Admin:</strong> admin / admin</p>
 </body>
 </html>

@@ -1,0 +1,109 @@
+Enhance the existing Flask-based Bug Bounty web app with the following features:
+
+✅ 1. Public Viewable QR Code for Bugged Website (Teams Can View, Admin Can Modify)
+Purpose: Teams should be able to view the bugged website’s QR code, but only the admin can modify the URL.
+
+Behavior:
+Create a new route /bug:
+
+Shows a read-only page displaying:
+
+QR code of the bugged website
+
+Clickable URL to open it directly
+
+Create or reuse a route /admin/bug_qr to:
+
+Allow admin to upload or change the bugged site URL
+
+Regenerate the QR code
+
+QR code should be generated using the Python qrcode module and saved in static/bugsite_qr.png.
+
+Store the bugged site URL in a persistent file like admin/bug_url.txt.
+
+✅ 2. Timer: Countdown in mm:ss with Team-Side Live Update
+Purpose: Improve the UX by showing a dynamic countdown in mm:ss format on the team submission page.
+
+Behavior:
+Backend sends remaining time in seconds.
+
+Frontend uses JavaScript to:
+
+Show a live-updating countdown.
+
+Display "Time's up!" when countdown hits zero.
+
+Timer logic remains in admin/status.json with:
+
+start_time, status, duration in minutes
+
+✅ 3. Leaderboard with Detailed Logging
+Purpose: Clearly display which team submitted what, how much score they got, and the time taken.
+
+Behavior:
+Modify /leaderboard route:
+
+Show the following fields:
+
+Team Name
+
+Score
+
+Time Taken (in mm:ss format)
+
+Sort leaderboard:
+
+Score descending
+
+Then time ascending
+
+Pull values from SQLite scores table:
+
+Fields: id, name, score, duration (in seconds)
+
+✅ 4. Admin-Only Controls (Secure & Centralized)
+Purpose: Ensure only admins can:
+
+Modify the QR code/URL
+
+Reset scores
+
+Start or stop the timer
+
+Update team passwords
+
+Add/remove teams
+
+Behavior:
+Use session auth (already implemented) to:
+
+Gate all admin features behind /admin/dashboard
+
+Lock form submissions and buttons unless session['admin'] is True
+
+✅ 5. Suggested Supporting Files
+admin/status.json → for timer state
+
+admin/bug_url.txt → stores bug site URL
+
+static/bugsite_qr.png → QR image
+
+database.db → SQLite DB storing teams and scores
+
+✅ Example Team CSV for Testing
+csv
+Copy
+Edit
+name,password
+TeamAlpha,alpha123
+BugSquashers,squash404
+ErrorHunters,error007
+NullPointers,nullnull
+Each team should:
+
+Be able to log in using their name + password
+
+Submit a zip only when the timer is active
+
+See their result after submission

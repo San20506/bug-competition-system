@@ -1,5 +1,6 @@
+
 from flask import Flask, render_template, request, redirect, session
-import os, zipfile, shutil, json, sqlite3
+import os, zipfile, shutil, json, sqlite3, csv, io
 from datetime import datetime
 from bug_rules import check_all_fixes
 
@@ -18,7 +19,7 @@ def login():
     error = ""
     if request.method == 'POST':
         name = request.form['username'].strip()
-        pw = request.form.get('password')
+        pw = request.form.get('password', '')
 
         if name.lower() == 'admin' and pw == ADMIN_PASS:
             session['admin'] = True
@@ -26,15 +27,15 @@ def login():
 
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
-        c.execute("SELECT 1 FROM teams WHERE name = ?", (name,))
+        c.execute("SELECT password FROM teams WHERE name = ?", (name,))
         result = c.fetchone()
         conn.close()
 
-        if result:
+        if result and result[0] == pw:
             session['team'] = name
             return redirect('/')
         else:
-            error = "❌ Invalid team or password"
+            error = "❌ Invalid team name or password"
 
     return render_template('login.html', error=error)
 
@@ -57,7 +58,7 @@ def index():
     if os.path.exists('admin/status.json'):
         with open('admin/status.json') as f:
             status = json.load(f)
-            if status['status'] == 'running':
+            if status['status'] == 'running' and status['start_time']:
                 elapsed = (datetime.now() - datetime.fromisoformat(status['start_time'])).total_seconds()
                 remaining = int(status['duration']) * 60 - int(elapsed)
                 timer_active = remaining > 0
@@ -146,6 +147,16 @@ def admin_dashboard():
                 json.dump(status, f)
             msg = "⏹ Timer stopped."
 
+        elif action == "reset_timer":
+            status = {
+                "status": "stopped",
+                "start_time": None,
+                "duration": 0
+            }
+            with open('admin/status.json', 'w') as f:
+                json.dump(status, f)
+            msg = "🔄 Timer reset."
+
         elif action == "reset_scores":
             c.execute("DELETE FROM scores")
             conn.commit()
@@ -163,8 +174,9 @@ def admin_dashboard():
 
         elif action == "add_team":
             name = request.form.get("teamname", "").strip()
+            password = request.form.get("teampassword", "").strip()
             try:
-                c.execute("INSERT INTO teams (name) VALUES (?)", (name,))
+                c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", (name, password))
                 conn.commit()
                 msg = f"✅ Team '{name}' added."
             except:
@@ -173,22 +185,33 @@ def admin_dashboard():
         elif action == "delete_team":
             name = request.form.get("teamname", "").strip()
             c.execute("DELETE FROM teams WHERE name = ?", (name,))
+            c.execute("DELETE FROM scores WHERE name = ?", (name,))
             conn.commit()
             msg = f"🗑 Team '{name}' deleted."
+
+        elif action == "change_password":
+            name = request.form.get("teamname", "").strip()
+            new_password = request.form.get("newpassword", "").strip()
+            c.execute("UPDATE teams SET password = ? WHERE name = ?", (new_password, name))
+            conn.commit()
+            msg = f"🔑 Password changed for team '{name}'."
 
         elif action == "bulk_teams":
             file = request.files.get("file")
             if file:
                 added = 0
-                for line in file.read().decode().splitlines():
-                    name = line.strip()
-                    try:
-                        c.execute("INSERT INTO teams (name) VALUES (?)", (name,))
-                        added += 1
-                    except:
-                        continue
+                content = file.read().decode('utf-8')
+                csv_reader = csv.reader(io.StringIO(content))
+                for row in csv_reader:
+                    if len(row) >= 2:
+                        name, password = row[0].strip(), row[1].strip()
+                        try:
+                            c.execute("INSERT INTO teams (name, password) VALUES (?, ?)", (name, password))
+                            added += 1
+                        except:
+                            continue
                 conn.commit()
-                msg = f"📥 {added} team(s) imported."
+                msg = f"📥 {added} team(s) imported from CSV."
 
         elif action == "reset_db":
             conn.close()
@@ -201,7 +224,7 @@ def admin_dashboard():
         timer = json.load(f)
     c.execute("SELECT id, name, score, duration FROM scores ORDER BY score DESC")
     scores = c.fetchall()
-    c.execute("SELECT name FROM teams ORDER BY name")
+    c.execute("SELECT name, password FROM teams ORDER BY name")
     teams = c.fetchall()
     conn.close()
 

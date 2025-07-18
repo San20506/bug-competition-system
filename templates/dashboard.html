@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,6 +10,7 @@
         th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
         .section { border: 1px solid #aaa; padding: 15px; margin-bottom: 30px; border-radius: 5px; }
         .success { color: green; }
+        .team-table { max-height: 200px; overflow-y: auto; }
     </style>
     <script>
         setInterval(() => { document.getElementById('live-frame').src = "/leaderboard?ts=" + new Date().getTime(); }, 10000);
@@ -23,10 +25,10 @@
 <div class="section">
     <h3>⏱ Timer Control</h3>
     <form method="POST">
-        <input type="password" name="password" placeholder="Admin Password" required>
         <input type="number" name="duration" placeholder="Minutes" value="{{ timer['duration'] }}">
         <button name="action" value="start_timer">▶ Start</button>
         <button name="action" value="stop_timer">⏹ Stop</button>
+        <button name="action" value="reset_timer">🔄 Reset</button>
     </form>
     <p>🕓 Status: {{ timer['status'] }} | Started at: {{ timer['start_time'] }}</p>
 </div>
@@ -35,7 +37,6 @@
 <div class="section">
     <h3>✏ Edit Scores</h3>
     <form method="POST">
-        <input type="password" name="password" placeholder="Admin Password" required><br>
         <input type="hidden" name="action" value="update_scores">
         <table>
             <tr><th>Team</th><th>Score</th><th>Time</th></tr>
@@ -54,31 +55,67 @@
 <!-- TEAM MANAGEMENT -->
 <div class="section">
     <h3>👥 Manage Teams</h3>
+    
+    <!-- Add Team -->
     <form method="POST">
-        <input type="password" name="password" placeholder="Admin Password" required>
-        <input type="text" name="teamname" placeholder="Team Name">
-        <button name="action" value="add_team">➕ Add</button>
-        <button name="action" value="delete_team">🗑 Delete</button>
+        <h4>➕ Add Single Team</h4>
+        <input type="text" name="teamname" placeholder="Team Name" required>
+        <input type="text" name="teampassword" placeholder="Password" required>
+        <button name="action" value="add_team">Add Team</button>
     </form>
 
+    <!-- Change Password -->
+    <form method="POST">
+        <h4>🔑 Change Team Password</h4>
+        <select name="teamname" required>
+            <option value="">Select Team</option>
+            {% for team in teams %}
+            <option value="{{ team[0] }}">{{ team[0] }}</option>
+            {% endfor %}
+        </select>
+        <input type="text" name="newpassword" placeholder="New Password" required>
+        <button name="action" value="change_password">Change Password</button>
+    </form>
+
+    <!-- Delete Team -->
+    <form method="POST">
+        <h4>🗑 Delete Team</h4>
+        <select name="teamname" required>
+            <option value="">Select Team</option>
+            {% for team in teams %}
+            <option value="{{ team[0] }}">{{ team[0] }}</option>
+            {% endfor %}
+        </select>
+        <button name="action" value="delete_team" onclick="return confirm('Delete this team and their scores?')">Delete Team</button>
+    </form>
+
+    <!-- Bulk Import -->
     <form method="POST" enctype="multipart/form-data">
-        <input type="password" name="password" placeholder="Admin Password" required>
-        <input type="file" name="file" accept=".txt,.csv">
-        <button name="action" value="bulk_teams">📥 Bulk Upload</button>
+        <h4>📥 Bulk Import Teams (CSV)</h4>
+        <input type="file" name="file" accept=".csv" required>
+        <button name="action" value="bulk_teams">Upload CSV</button>
+        <small>Format: name,password (one per line)</small>
     </form>
 
-    <ul>
-        {% for team in teams %}
-        <li>{{ team[0] }}</li>
-        {% endfor %}
-    </ul>
+    <!-- Teams List -->
+    <h4>📋 Registered Teams</h4>
+    <div class="team-table">
+        <table>
+            <tr><th>Team Name</th><th>Password</th></tr>
+            {% for team in teams %}
+            <tr>
+                <td>{{ team[0] }}</td>
+                <td>{{ team[1] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 </div>
     
 <!-- Reset DB -->
 <div class="section">
     <h3>🧨 Reset Database (New Round)</h3>
     <form method="POST">
-        <input type="password" name="password" required>
         <button name="action" value="reset_db" onclick="return confirm('Are you sure you want to erase ALL scores and teams?')">💥 Reset Everything</button>
     </form>
 </div>
