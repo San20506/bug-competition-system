@@ -1,20 +1,21 @@
-
 {
   "1": {
-    "name": "E-commerce Store",
-    "type": "Shopping Platform",
-    "drive_link": "https://drive.google.com/drive/folders/1m8WA_0aAuQRq_vX39oSzeDCA46QxGZ48?usp=sharing",
-    "qr_path": "static/qr/site_1.png",
+    "name": "Acuas - Clean Water Solutions",
+    "template_folder": "drinking-water-website-template",
+    "type": "Business/Environmental",
+    "drive_link": "https://drive.google.com/drive/folders/1YP02dtjkQBu__YcpyxRMTInzHT9OaRfD?usp=drive_link",
+    "description": "Professional water delivery and purification services website with modern design, service showcase, and customer testimonials.",
     "bugs_count": 30,
-    "description": "Online store with cart functionality"
+    "qr_path": "static/qr/site_1.png"
   },
   "2": {
-    "name": "Social Media Platform",
-    "type": "Social Network",
-    "drive_link": "https://drive.google.com/drive/folders/1m8WA_0aAuQRq_vX39oSzeDCA46QxGZ48?usp=sharing",
-    "qr_path": "static/qr/site_2.png",
+    "name": "Mobile App Landing",
+    "template_folder": "mobile-app-html-template",
+    "type": "Technology/App Landing",
+    "drive_link": "https://drive.google.com/drive/folders/1gPRUvvOBnDdzJL36BjPz11V2DHPJUTte?usp=drive_link",
+    "description": "Modern mobile application landing page featuring app downloads, feature highlights, screenshots, and user reviews.",
     "bugs_count": 30,
-    "description": "Social networking site with user profiles and feeds"
+    "qr_path": "static/qr/site_2.png"
   },
   "3": {
     "name": "Banking Portal",

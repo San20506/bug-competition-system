@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, redirect, session, send_from_directory, jsonify
 import os, zipfile, shutil, json, sqlite3, csv, io, qrcode
 from datetime import datetime
@@ -16,6 +15,15 @@ if not os.path.exists(STATIC_FOLDER):
     os.makedirs(STATIC_FOLDER)
 if not os.path.exists('static/qr'):
     os.makedirs('static/qr')
+
+# Template folder mapping for your actual template names
+TEMPLATE_FOLDERS = {
+    1: 'drinking-water-website-template',
+    2: 'mobile-app-html-template',
+    3: 'online-shop-website-template',
+    4: 'seo-agency-website-template',
+    5: 'stock-market-website-template'
+}
 
 
 def generate_qr_code(url, site_id):
@@ -65,10 +73,25 @@ def format_time(seconds):
 def export_bug_reports():
     """Export comprehensive bug reports to CSV"""
     try:
-        # Run the bug summary script to generate reports
-        import subprocess
-        result = subprocess.run(['python', 'templates/bugged_sites/bug_summary.py'], 
-                              capture_output=True, text=True, cwd='.')
+        # Generate reports from actual template folders
+        report_data = []
+        for site_id, template_folder in TEMPLATE_FOLDERS.items():
+            bug_log_path = f'{template_folder}/bug_log.json'
+            if os.path.exists(bug_log_path):
+                with open(bug_log_path, 'r') as f:
+                    bug_data = json.load(f)
+                    report_data.append({
+                        'site_id': site_id,
+                        'template_name': template_folder,
+                        'total_bugs': bug_data.get('total_bugs', 0),
+                        'html_bugs': bug_data.get('html_bugs', 0),
+                        'css_bugs': bug_data.get('css_bugs', 0)
+                    })
+
+        # Save report
+        with open('static/bug_reports.json', 'w') as f:
+            json.dump(report_data, f, indent=2)
+
         return "✅ Bug reports exported successfully!"
     except Exception as e:
         return f"❌ Error exporting reports: {str(e)}"
@@ -124,7 +147,7 @@ def bug_site():
     sites = get_sites()
 
     site_info = sites.get(str(site_id), {})
-    site_name = site_info.get('name', f'Site {site_id}')
+    site_name = site_info.get('name', TEMPLATE_FOLDERS.get(site_id, f'Site {site_id}'))
     drive_link = site_info.get('drive_link', '#')
 
     qr_path = f'static/qr/site_{site_id}.png'
@@ -151,18 +174,24 @@ def download_site(site_id):
     if site_id != team_site_id:
         return "Access denied: You can only download your assigned site", 403
 
-    site_path = f'templates/bugged_sites/site_{site_id}'
+    # Get the actual template folder name
+    template_folder = TEMPLATE_FOLDERS.get(site_id)
+    if not template_folder:
+        return "Invalid site ID", 404
+
+    site_path = template_folder
     if not os.path.exists(site_path):
         return "Site not found", 404
 
     # Create ZIP file
-    zip_filename = f'site_{site_id}_buggy_files.zip'
+    zip_filename = f'site_{site_id}_{template_folder}_buggy_files.zip'
     zip_path = os.path.join('uploads', zip_filename)
 
     with zipfile.ZipFile(zip_path, 'w') as zipf:
         for root, dirs, files in os.walk(site_path):
             for file in files:
-                if not file.endswith('.py'):  # Exclude detection scripts
+                # Exclude bug logs and backup files from download
+                if not file.endswith(('.py', '.backup', 'bug_log.json')):
                     file_path = os.path.join(root, file)
                     arc_name = os.path.relpath(file_path, site_path)
                     zipf.write(file_path, arc_name)
@@ -244,10 +273,35 @@ def leaderboard():
     # Format time for display and add site names
     formatted_rows = []
     for row in rows:
-        site_name = sites.get(str(row[3]), {}).get('name', f'Site {row[3]}')
+        site_name = sites.get(str(row[3]), {}).get('name', TEMPLATE_FOLDERS.get(row[3], f'Site {row[3]}'))
         formatted_rows.append((row[0], row[1], format_time(row[2]), site_name))
 
     return render_template("leaderboard.html", rows=formatted_rows)
+
+
+# ---- TEAM PROGRESS ROUTE ----
+@app.route('/team/progress')
+def team_progress():
+    if 'team' not in session:
+        return redirect('/login')
+
+    team_name = session['team']
+    site_id = get_team_site(team_name)
+
+    # Get template name for display
+    template_name = TEMPLATE_FOLDERS.get(site_id, f'Site {site_id}')
+
+    from bug_rules import get_detailed_results
+    try:
+        details = get_detailed_results(UPLOAD_FOLDER, site_id)
+    except:
+        details = {"score": 0, "total_bugs": 30, "fixed_bugs": 0, "details": [], "percentage": 0}
+
+    return render_template('team_progress.html', 
+                         team_name=team_name,
+                         site_id=site_id,
+                         template_name=template_name,
+                         progress=details)
 
 
 # ---- ADMIN SITES MANAGEMENT ----
@@ -271,14 +325,22 @@ def admin_sites():
             description = request.form.get('description', '').strip()
 
             if site_id and site_name and drive_link:
+                # Use actual template name if available
+                template_name = TEMPLATE_FOLDERS.get(int(site_id), site_name)
+
                 sites[site_id] = {
                     'name': site_name,
+                    'template_folder': template_name,
                     'type': site_type,
                     'drive_link': drive_link,
                     'description': description,
                     'bugs_count': sites.get(site_id, {}).get('bugs_count', 30),
                     'qr_path': f'static/qr/site_{site_id}.png'
                 }
+
+                # Ensure admin directory exists
+                if not os.path.exists('admin'):
+                    os.makedirs('admin')
 
                 with open('admin/sites.json', 'w') as f:
                     json.dump(sites, f, indent=2)
@@ -290,7 +352,7 @@ def admin_sites():
                     with open('admin/sites.json', 'w') as f:
                         json.dump(sites, f, indent=2)
 
-                msg = f"✅ Site {site_id} updated and QR code regenerated!"
+                msg = f"✅ Site {site_id} ({template_name}) updated and QR code regenerated!"
 
         elif action == 'regenerate_qr':
             site_id = request.form.get('site_id')
@@ -313,7 +375,7 @@ def admin_sites():
                     if qr_path:
                         sites[site_id]['qr_path'] = qr_path
                         regenerated += 1
-            
+
             with open('admin/sites.json', 'w') as f:
                 json.dump(sites, f, indent=2)
             msg = f"🔄 {regenerated} QR codes regenerated!"
@@ -328,17 +390,55 @@ def admin_sites():
             c.execute("SELECT name, site_id FROM teams ORDER BY site_id, name")
             assignments = c.fetchall()
             conn.close()
-            
+
             team_assignments = []
             for team_name, site_id in assignments:
-                site_name = sites.get(str(site_id), {}).get('name', f'Site {site_id}')
+                site_name = sites.get(str(site_id), {}).get('name', TEMPLATE_FOLDERS.get(site_id, f'Site {site_id}'))
+                template_folder = TEMPLATE_FOLDERS.get(site_id, 'Unknown')
                 team_assignments.append({
                     'team_name': team_name,
                     'site_id': site_id,
-                    'site_name': site_name
+                    'site_name': site_name,
+                    'template_folder': template_folder
                 })
 
-    return render_template('admin_sites.html', msg=msg, sites=sites, team_assignments=team_assignments)
+    # Add template folder info to sites display
+    for site_id_str, site_info in sites.items():
+        site_id_int = int(site_id_str)
+        site_info['template_folder'] = TEMPLATE_FOLDERS.get(site_id_int, 'Unknown')
+
+    return render_template('admin_sites.html', msg=msg, sites=sites, team_assignments=team_assignments, template_folders=TEMPLATE_FOLDERS)
+
+
+# ---- ADMIN BUG ANALYTICS ----
+@app.route('/admin/bug_analytics')
+def admin_bug_analytics():
+    if 'admin' not in session:
+        return redirect('/login')
+
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute("SELECT name, score, site_id FROM scores ORDER BY score DESC")
+    scores = c.fetchall()
+    conn.close()
+
+    sites = get_sites()
+    analytics_data = []
+
+    for team_name, score, site_id in scores:
+        site_name = sites.get(str(site_id), {}).get('name', TEMPLATE_FOLDERS.get(site_id, f'Site {site_id}'))
+        template_folder = TEMPLATE_FOLDERS.get(site_id, 'Unknown')
+
+        analytics_data.append({
+            'team': team_name,
+            'site_id': site_id,
+            'site_name': site_name,
+            'template_folder': template_folder,
+            'score': score,
+            'max_score': 900  # 30 bugs * 30 points max each
+        })
+
+    return render_template('admin_bug_analytics.html', analytics=analytics_data)
 
 
 # ---- ADMIN DASHBOARD ----
@@ -361,6 +461,9 @@ def admin_dashboard():
                 "start_time": datetime.now().isoformat(),
                 "duration": mins
             }
+            # Ensure admin directory exists
+            if not os.path.exists('admin'):
+                os.makedirs('admin')
             with open('admin/status.json', 'w') as f:
                 json.dump(status, f)
             msg = f"▶ Timer started for {mins} minutes."
@@ -405,7 +508,8 @@ def admin_dashboard():
             try:
                 c.execute("INSERT INTO teams (name, password, site_id) VALUES (?, ?, ?)", (name, password, site_id))
                 conn.commit()
-                msg = f"✅ Team '{name}' added with Site {site_id}."
+                template_name = TEMPLATE_FOLDERS.get(site_id, f'Site {site_id}')
+                msg = f"✅ Team '{name}' added with {template_name} (Site {site_id})."
             except:
                 msg = f"⚠️ Team '{name}' already exists."
 
@@ -428,7 +532,8 @@ def admin_dashboard():
             new_site_id = int(request.form.get("site_id", 1))
             c.execute("UPDATE teams SET site_id = ? WHERE name = ?", (new_site_id, name))
             conn.commit()
-            msg = f"🎯 Site assignment changed for team '{name}' to Site {new_site_id}."
+            template_name = TEMPLATE_FOLDERS.get(new_site_id, f'Site {new_site_id}')
+            msg = f"🎯 Site assignment changed for team '{name}' to {template_name} (Site {new_site_id})."
 
         elif action == "bulk_teams":
             file = request.files.get("file")
@@ -455,8 +560,12 @@ def admin_dashboard():
             msg = "💥 Database reset. All teams and scores removed."
             return redirect('/admin/dashboard')
 
-    with open('admin/status.json') as f:
-        timer = json.load(f)
+    # Load timer status
+    timer = {"status": "stopped", "start_time": None, "duration": 0}
+    if os.path.exists('admin/status.json'):
+        with open('admin/status.json') as f:
+            timer = json.load(f)
+
     c.execute("SELECT id, name, score, duration FROM scores ORDER BY score DESC")
     scores = c.fetchall()
     c.execute("SELECT name, password, site_id FROM teams ORDER BY name")
@@ -465,7 +574,13 @@ def admin_dashboard():
 
     sites = get_sites()
 
-    return render_template("dashboard.html", msg=msg, timer=timer, scores=scores, teams=teams, sites=sites)
+    # Add template folder names to display
+    enhanced_teams = []
+    for team_name, password, site_id in teams:
+        template_name = TEMPLATE_FOLDERS.get(site_id, f'Site {site_id}')
+        enhanced_teams.append((team_name, password, site_id, template_name))
+
+    return render_template("dashboard.html", msg=msg, timer=timer, scores=scores, teams=enhanced_teams, sites=sites, template_folders=TEMPLATE_FOLDERS)
 
 
 # ---- RUN SERVER ----
